@@ -56,7 +56,6 @@ namespace ExchangersAnalizer
 
         private void ConfigExchangers(IServiceCollection services)
         {
-            services.AddSingleton(typeof(ExchangePoloniexAPI));
             services.AddSingleton(typeof(ExchangeBittrexAPI));
             services.AddSingleton(typeof(ExchangeBinanceAPI));
             services.AddSingleton(typeof(ExchangeHitbtcAPI));

@@ -19,5 +19,7 @@ namespace ExchangersAnalizer.Services
     public interface ICoinInfoService
     {
         Task<IEnumerable<CoinInfo>> GetExchangerCoinInfoAsync();
+
+        Task<IEnumerable<ExchangeSymbol>> GetExchangeSymbols();
     }
 }

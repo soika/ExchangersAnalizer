@@ -52,10 +52,19 @@ namespace ExchangersAnalizer.Services
             return globalSymbols.Select(symbol => new CoinInfo {Symbol = symbol}).ToList();
         }
 
-        private async Task<IEnumerable<string>> GetCoinSymbols()
+        public async Task<IEnumerable<ExchangeSymbol>> GetExchangeSymbols()
         {
-            var symbols = await binanceApi.GetSymbolsAsync();
-            return symbols.ToGlobalSymbols();
+            var symbolList = new List<ExchangeSymbol>();
+            var bigestExchangerSymbols = await this.binanceApi.GetSymbolsAsync();
+            foreach (var binanceSymbol in bigestExchangerSymbols)
+            {
+                symbolList.Add(new ExchangeSymbol
+                {
+                    GlobalSymbol = binanceSymbol.
+                });
+            }
+
+            return symbolList;
         }
     }
 }
