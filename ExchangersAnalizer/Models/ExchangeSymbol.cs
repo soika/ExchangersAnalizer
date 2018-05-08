@@ -20,7 +20,7 @@ namespace ExchangersAnalizer.Models
 
         public string Okex { get; set; }
 
-        public string HitBTC { get; set; }
+        public string HitBtc { get; set; }
 
         public string Bittrex { get; set; }
 

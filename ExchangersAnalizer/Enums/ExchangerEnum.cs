@@ -4,7 +4,7 @@
     {
         Binance,
         Bithumb,
-        Hitbtc,
+        HitBtc,
         Okex,
         Bittrex
     }

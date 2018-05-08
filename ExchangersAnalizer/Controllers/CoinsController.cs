@@ -33,5 +33,11 @@ namespace ExchangersAnalizer.Controllers
         {
             return await coinInfoService.GetExchangerCoinInfoAsync();
         }
+
+        [HttpGet("symbols")]
+        public async Task<IEnumerable<ExchangeSymbol>> GetSymbols()
+        {
+            return await coinInfoService.GetExchangeSymbols();
+        }
     }
 }

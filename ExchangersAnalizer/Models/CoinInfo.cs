@@ -12,6 +12,8 @@
 
 namespace ExchangersAnalizer.Models
 {
+    using Enums;
+
     public class CoinInfo
     {
         public string Symbol { get; set; }
@@ -29,5 +31,7 @@ namespace ExchangersAnalizer.Models
         public double BidPercent { get; set; }
 
         public bool DefaultExchanger { get; set; }
+
+        public BaseCurrencyEnum Currency { get; set; }
     }
 }
