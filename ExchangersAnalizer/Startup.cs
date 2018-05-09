@@ -12,6 +12,7 @@
 
 namespace ExchangersAnalizer
 {
+    using CronJobs.Tasks;
     using ExchangeSharp;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
@@ -36,6 +37,14 @@ namespace ExchangersAnalizer
             InjectServices(services);
 
             ConfigExchangers(services);
+
+            ConfigCronJobs(services);
+        }
+
+        private void ConfigCronJobs(IServiceCollection services)
+        {
+            // Tasks
+            services.AddSingleton<IScheduledTask, CoinInfoGrabTask>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

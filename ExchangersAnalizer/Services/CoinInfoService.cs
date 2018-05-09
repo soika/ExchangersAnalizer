@@ -67,8 +67,13 @@ namespace ExchangersAnalizer.Services
             symbolList = await FillOkex(symbolList);
             symbolList = await FillBittrex(symbolList);
             symbolList = await FillHitBtc(symbolList);
-
-            return symbolList;
+            var filteredResult = symbolList
+                .Where(
+                    s => !string.IsNullOrEmpty(s.Bittrex)
+                         || !string.IsNullOrEmpty(s.HitBtc)
+                         || !string.IsNullOrEmpty(s.Okex))
+                .ToList();
+            return filteredResult;
         }
 
         public async Task<List<ExchangeSymbol>> FillOkex(List<ExchangeSymbol> globalSymbols)
