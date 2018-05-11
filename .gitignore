@@ -20,3 +20,5 @@
 /ExchangersAnalizer/obj/ExchangersAnalizer.csproj.nuget.g.props
 /ExchangersAnalizer/obj/ExchangersAnalizer.csproj.nuget.g.targets
 /ExchangersAnalizer/obj/project.assets.json
+/.vs/ExchangersAnalizer/DesignTimeBuild/.dtbcache
+/ExchangersAnalizer/obj/Debug/netcoreapp2.0/ExchangersAnalizer.csprojAssemblyReference.cache

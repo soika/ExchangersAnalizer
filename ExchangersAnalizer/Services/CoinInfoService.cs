@@ -45,9 +45,38 @@ namespace ExchangersAnalizer.Services
         /// <inheritdoc />
         public async Task<IEnumerable<CoinInfo>> GetExchangerCoinInfoAsync()
         {
-            var symbols = await binanceApi.GetSymbolsAsync();
-            var globalSymbols = symbols.ToGlobalSymbols();
-            return globalSymbols.Select(symbol => new CoinInfo {Symbol = symbol}).ToList();
+            var binanceMarket = (await this.binanceApi.GetTickersAsync()).ToList();
+            var bittrexMarket = await this.bittrexApi.GetTickersAsync();
+            //var okexMarket = await this.okexApi.GetTickersAsync();
+            var hitBtcMarket = await this.hitbtcApi.GetTickersAsync();
+
+            var symbols = await GetExchangeSymbols();
+            var coins = new List<CoinInfo>();
+            foreach (var symbol in symbols)
+            {
+                var coin = new CoinInfo
+                {
+                    Symbol = symbol.GlobalSymbol,
+                    Currency = BaseCurrencyEnum.BTC,
+                    ExchangePrices = new List<ExchangePrice>()
+                };
+
+                foreach (var b in binanceMarket.ToList())
+                {
+                    if (b.Value.Volume.BaseSymbol.Equals(symbol.Binance))
+                    {
+                        coin.ExchangePrices.Add(new ExchangePrice
+                        {
+                            Exchanger = ExchangerEnum.Binance,
+                            LastPrice = b.Value.Last
+                        });
+                    }
+                }
+
+                coins.Add(coin);
+            }
+
+            return coins;
         }
 
         public async Task<List<ExchangeSymbol>> GetExchangeSymbols()
@@ -64,7 +93,7 @@ namespace ExchangersAnalizer.Services
                     });
             }
 
-            symbolList = await FillOkex(symbolList);
+            //symbolList = await FillOkex(symbolList);
             symbolList = await FillBittrex(symbolList);
             symbolList = await FillHitBtc(symbolList);
             var filteredResult = symbolList
@@ -72,6 +101,7 @@ namespace ExchangersAnalizer.Services
                     s => !string.IsNullOrEmpty(s.Bittrex)
                          || !string.IsNullOrEmpty(s.HitBtc)
                          || !string.IsNullOrEmpty(s.Okex))
+                .Where(s => s.GlobalSymbol.EndsWith("BTC"))
                 .ToList();
             return filteredResult;
         }
