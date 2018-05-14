@@ -13,9 +13,11 @@
 namespace ExchangersAnalizer
 {
     using CronJobs.Tasks;
+    using Data;
     using ExchangeSharp;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
+    using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Services;
@@ -34,11 +36,23 @@ namespace ExchangersAnalizer
         {
             ConfigureMvcServices(services);
 
+            ConfigDbContext(services);
+
             InjectServices(services);
 
             ConfigExchangers(services);
 
             ConfigCronJobs(services);
+        }
+
+        private void ConfigDbContext(IServiceCollection services)
+        {
+            var connection = Configuration["Production:SqliteConnectionString"];
+
+            services.AddDbContext<ApplicationDbContext>(
+                options =>
+                    options.UseSqlite(connection)
+            );
         }
 
         private void ConfigureMvcServices(IServiceCollection services)
