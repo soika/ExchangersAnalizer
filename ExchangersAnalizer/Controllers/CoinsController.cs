@@ -13,7 +13,9 @@
 namespace ExchangersAnalizer.Controllers
 {
     using System.Collections.Generic;
+    using System.Linq;
     using System.Threading.Tasks;
+    using Extensions;
     using Microsoft.AspNetCore.Mvc;
     using Models;
     using Services;
@@ -21,23 +23,25 @@ namespace ExchangersAnalizer.Controllers
     [Route("api/[controller]")]
     public class CoinsController : Controller
     {
-        private readonly ICoinInfoService coinInfoService;
+        private readonly ICoinInfoService _coinInfoService;
 
         public CoinsController(ICoinInfoService coinInfoService)
         {
-            this.coinInfoService = coinInfoService;
+            _coinInfoService = coinInfoService;
         }
 
         [HttpGet]
-        public async Task<IEnumerable<CoinInfo>> GetAllCoins()
+        public async Task<IActionResult> GetAllCoins()
         {
-            return await coinInfoService.GetExchangerCoinInfoAsync();
+            var coins = await _coinInfoService.GetExchangerCoinInfoAsync();
+            return Ok(coins.Select(coin => coin.ToResponse()));
         }
 
         [HttpGet("symbols")]
-        public async Task<IEnumerable<ExchangeSymbol>> GetSymbols()
+        public async Task<IActionResult> GetSymbols()
         {
-            return await coinInfoService.GetExchangeSymbols();
+            var symbols = await _coinInfoService.GetExchangeSymbols();
+            return Ok(symbols);
         }
     }
 }

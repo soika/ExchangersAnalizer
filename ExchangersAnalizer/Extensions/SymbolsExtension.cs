@@ -12,53 +12,106 @@
 
 namespace ExchangersAnalizer.Extensions
 {
-    using System;
     using System.Collections.Generic;
     using System.Linq;
     using Enums;
+    using Models;
 
     public static class SymbolsExtension
     {
-        public static IEnumerable<string> ToGlobalSymbols(this IEnumerable<string> symbols)
-        {
-            return symbols.Select(symbol => symbol.Replace("-", string.Empty))
-                .ToList();
-        }
-
-        public static string ToGlobalSymbol(this string symbol, ExchangerEnum exchanger)
+        public static List<ExchangeSymbol> FillExchangerSymbols(
+            this List<ExchangeSymbol> globalSymbols,
+            ExchangerEnum exchanger,
+            string[] symbols)
         {
             switch (exchanger)
             {
                 default:
                 {
-                    return symbol;
+                    return globalSymbols;
                 }
 
                 case ExchangerEnum.Binance:
                 {
-                    return symbol.Replace("-", string.Empty);
+                    foreach (var globalSymbol in globalSymbols)
+                    {
+                        foreach (var symbol in symbols)
+                        {
+                            if (SymbolHelper.ToGlobalSymbol(symbol, ExchangerEnum.Binance)
+                                .Equals(globalSymbol.GlobalSymbol))
+                            {
+                                globalSymbol.Binance = symbol;
+                            }
+                        }
+                    }
+
+                    return globalSymbols;
                 }
 
                 case ExchangerEnum.Bittrex:
                 {
-                    // BTC-LTC => LTCBTC
-                    var items = symbol.Split(new[] {'-'}, StringSplitOptions.RemoveEmptyEntries);
-                    return $"{items[1]}{items[0]}";
-                }
+                    foreach (var globalSymbol in globalSymbols)
+                    {
+                        foreach (var symbol in symbols)
+                        {
+                            if (SymbolHelper.ToGlobalSymbol(symbol, ExchangerEnum.Bittrex)
+                                .Equals(globalSymbol.GlobalSymbol))
+                            {
+                                globalSymbol.Bittrex = symbol;
+                            }
+                        }
+                    }
 
-                case ExchangerEnum.Okex:
-                {
-                    // btc_ltc => BTCLTC
-                    return symbol.Replace("_", string.Empty).ToUpper();
+                    return globalSymbols;
                 }
 
                 case ExchangerEnum.HitBtc:
-                case ExchangerEnum.Bithumb:
                 {
-                    // Bithumb is special symbol
-                    return symbol;
+                    foreach (var globalSymbol in globalSymbols)
+                    {
+                        foreach (var symbol in symbols)
+                        {
+                            if (SymbolHelper.ToGlobalSymbol(symbol, ExchangerEnum.HitBtc)
+                                .Equals(globalSymbol.GlobalSymbol))
+                            {
+                                globalSymbol.HitBtc = symbol;
+                            }
+                        }
+                    }
+
+                    return globalSymbols;
+                }
+
+                case ExchangerEnum.KuCoin:
+                {
+                    foreach (var globalSymbol in globalSymbols)
+                    {
+                        foreach (var symbol in symbols)
+                        {
+                            if (SymbolHelper.ToGlobalSymbol(symbol, ExchangerEnum.KuCoin)
+                                .Equals(globalSymbol.GlobalSymbol))
+                            {
+                                globalSymbol.KuCoin = symbol;
+                            }
+                        }
+                    }
+
+                    return globalSymbols;
                 }
             }
+        }
+
+        public static List<ExchangeSymbol> FilterByBaseCurency(
+            this List<ExchangeSymbol> globalSymbols,
+            BaseCurrencyEnum currency = BaseCurrencyEnum.BTC)
+        {
+            return globalSymbols
+                .Where(
+                    s => !string.IsNullOrEmpty(s.Bittrex)
+                         || !string.IsNullOrEmpty(s.HitBtc)
+                         || !string.IsNullOrEmpty(s.KuCoin))
+                .Where(s => s.GlobalSymbol.EndsWith(currency.ToString()))
+                .ToList();
         }
     }
 }

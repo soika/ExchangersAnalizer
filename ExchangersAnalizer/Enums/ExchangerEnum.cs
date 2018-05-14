@@ -6,6 +6,7 @@
         Bithumb,
         HitBtc,
         Okex,
-        Bittrex
+        Bittrex,
+        KuCoin
     }
 }

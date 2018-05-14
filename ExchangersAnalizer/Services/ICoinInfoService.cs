@@ -14,12 +14,13 @@ namespace ExchangersAnalizer.Services
 {
     using System.Collections.Generic;
     using System.Threading.Tasks;
+    using Enums;
     using Models;
 
     public interface ICoinInfoService
     {
-        Task<IEnumerable<CoinInfo>> GetExchangerCoinInfoAsync();
+        Task<IEnumerable<CoinInfo>> GetExchangerCoinInfoAsync(BaseCurrencyEnum currency = BaseCurrencyEnum.BTC);
 
-        Task<List<ExchangeSymbol>> GetExchangeSymbols();
+        Task<List<ExchangeSymbol>> GetExchangeSymbols(BaseCurrencyEnum currency = BaseCurrencyEnum.BTC);
     }
 }

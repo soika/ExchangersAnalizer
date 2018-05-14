@@ -17,10 +17,10 @@ namespace ExchangersAnalizer.Models
 
     public class CoinInfo
     {
-        public string Symbol { get; set; }
-
         public IList<ExchangePrice> ExchangePrices { get; set; }
 
         public BaseCurrencyEnum Currency { get; set; }
+
+        public ExchangeSymbol ExchangeSymbol { get; set; }
     }
 }

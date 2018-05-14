@@ -18,10 +18,10 @@ namespace ExchangersAnalizer.Models
 
         public string Binance { get; set; }
 
-        public string Okex { get; set; }
-
         public string HitBtc { get; set; }
 
         public string Bittrex { get; set; }
+
+        public string KuCoin { get; set; }
     }
 }

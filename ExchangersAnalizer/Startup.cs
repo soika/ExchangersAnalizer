@@ -32,13 +32,19 @@ namespace ExchangersAnalizer
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc();
+            ConfigureMvcServices(services);
 
             InjectServices(services);
 
             ConfigExchangers(services);
 
             ConfigCronJobs(services);
+        }
+
+        private void ConfigureMvcServices(IServiceCollection services)
+        {
+            services.AddMvc();
+            services.AddMemoryCache();
         }
 
         private void ConfigCronJobs(IServiceCollection services)
@@ -68,8 +74,8 @@ namespace ExchangersAnalizer
             services.AddSingleton(typeof(ExchangeBittrexAPI));
             services.AddSingleton(typeof(ExchangeBinanceAPI));
             services.AddSingleton(typeof(ExchangeHitbtcAPI));
-            services.AddSingleton(typeof(ExchangeBithumbAPI));
-            services.AddSingleton(typeof(ExchangeOkexAPI));
+            //services.AddSingleton(typeof(ExchangeOkexAPI));
+            services.AddSingleton(typeof(ExchangeKucoinAPI));
         }
     }
 }

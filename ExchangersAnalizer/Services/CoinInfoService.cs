@@ -18,143 +18,92 @@ namespace ExchangersAnalizer.Services
     using Enums;
     using ExchangeSharp;
     using Extensions;
+    using Microsoft.Extensions.Caching.Memory;
     using Models;
 
     public class CoinInfoService : ICoinInfoService
     {
-        private readonly ExchangeBinanceAPI binanceApi;
-        private readonly ExchangeBithumbAPI bithumbApi;
-        private readonly ExchangeBittrexAPI bittrexApi;
-        private readonly ExchangeHitbtcAPI hitbtcApi;
-        private readonly ExchangeOkexAPI okexApi;
+        private const string CoinInfoKey = "COINS";
+        private const string SymbolsKey = "SYMBOLS";
+        private readonly ExchangeBinanceAPI _binanceApi;
+        private readonly ExchangeBittrexAPI _bittrexApi;
+        private readonly ExchangeHitbtcAPI _hitbtcApi;
+        private readonly ExchangeKucoinAPI _kucoinApi;
+        private readonly IMemoryCache _memoryCache;
 
         public CoinInfoService(
-            ExchangeBithumbAPI bithumbApi,
             ExchangeBittrexAPI bittrexApi,
             ExchangeBinanceAPI binanceApi,
             ExchangeHitbtcAPI hitbtcApi,
-            ExchangeOkexAPI okexApi)
+            ExchangeKucoinAPI kucoinApi,
+            IMemoryCache memoryCache)
         {
-            this.bithumbApi = bithumbApi;
-            this.binanceApi = binanceApi;
-            this.bittrexApi = bittrexApi;
-            this.hitbtcApi = hitbtcApi;
-            this.okexApi = okexApi;
+            _binanceApi = binanceApi;
+            _bittrexApi = bittrexApi;
+            _hitbtcApi = hitbtcApi;
+            _kucoinApi = kucoinApi;
+            _memoryCache = memoryCache;
         }
 
         /// <inheritdoc />
-        public async Task<IEnumerable<CoinInfo>> GetExchangerCoinInfoAsync()
+        public async Task<IEnumerable<CoinInfo>> GetExchangerCoinInfoAsync(
+            BaseCurrencyEnum currency = BaseCurrencyEnum.BTC)
         {
-            var binanceMarket = (await this.binanceApi.GetTickersAsync()).ToList();
-            var bittrexMarket = await this.bittrexApi.GetTickersAsync();
-            //var okexMarket = await this.okexApi.GetTickersAsync();
-            var hitBtcMarket = await this.hitbtcApi.GetTickersAsync();
-
-            var symbols = await GetExchangeSymbols();
-            var coins = new List<CoinInfo>();
-            foreach (var symbol in symbols)
+            var coins = _memoryCache.Get<List<CoinInfo>>(CoinInfoKey);
+            if (coins != null)
             {
-                var coin = new CoinInfo
-                {
-                    Symbol = symbol.GlobalSymbol,
-                    Currency = BaseCurrencyEnum.BTC,
-                    ExchangePrices = new List<ExchangePrice>()
-                };
-
-                foreach (var b in binanceMarket.ToList())
-                {
-                    if (b.Value.Volume.BaseSymbol.Equals(symbol.Binance))
-                    {
-                        coin.ExchangePrices.Add(new ExchangePrice
-                        {
-                            Exchanger = ExchangerEnum.Binance,
-                            LastPrice = b.Value.Last
-                        });
-                    }
-                }
-
-                coins.Add(coin);
+                return coins;
             }
 
+            var binanceMarket = (await _binanceApi.GetTickersAsync()).ToList();
+            var bittrexMarket = (await _bittrexApi.GetTickersAsync()).ToList();
+            var hitbtcMarket = (await _hitbtcApi.GetTickersAsync()).ToList();
+            var kucoinMarket = (await _kucoinApi.GetTickersAsync()).ToList();
+
+            var symbols = await GetExchangeSymbols();
+            coins = symbols.Select(
+                x => new CoinInfo
+                {
+                    ExchangeSymbol = x,
+                    Currency = BaseCurrencyEnum.BTC,
+                    ExchangePrices = new List<ExchangePrice>()
+                }).ToList();
+
+            coins = coins.FillExchangePrice(ExchangerEnum.Binance, binanceMarket);
+            coins = coins.FillExchangePrice(ExchangerEnum.Bittrex, bittrexMarket);
+            coins = coins.FillExchangePrice(ExchangerEnum.HitBtc, hitbtcMarket);
+            coins = coins.FillExchangePrice(ExchangerEnum.KuCoin, kucoinMarket);
+
+            _memoryCache.Set(CoinInfoKey, coins);
             return coins;
         }
 
-        public async Task<List<ExchangeSymbol>> GetExchangeSymbols()
+        public async Task<List<ExchangeSymbol>> GetExchangeSymbols(BaseCurrencyEnum currency = BaseCurrencyEnum.BTC)
         {
-            var symbolList = new List<ExchangeSymbol>();
-            var bigestExchangerSymbols = await binanceApi.GetSymbolsAsync();
-            foreach (var binanceSymbol in bigestExchangerSymbols)
+            var cachedSymbols = _memoryCache.Get<List<ExchangeSymbol>>(SymbolsKey);
+            if (cachedSymbols != null)
             {
-                symbolList.Add(
+                return cachedSymbols;
+            }
+
+            var binanceSymbols = (await _binanceApi.GetSymbolsAsync()).ToArray();
+            var bittrexSymbols = (await _bittrexApi.GetSymbolsAsync()).ToArray();
+            var hitBtcSymbols = (await _hitbtcApi.GetSymbolsAsync()).ToArray();
+            var kucoinSymbols = (await _kucoinApi.GetSymbolsAsync()).ToArray();
+            var globalSymbols = binanceSymbols.Select(
+                x =>
                     new ExchangeSymbol
                     {
-                        GlobalSymbol = SymbolHelper.ToGlobalSymbol(binanceSymbol, ExchangerEnum.Okex),
-                        Binance = binanceSymbol
-                    });
-            }
+                        GlobalSymbol = SymbolHelper.ToGlobalSymbol(x, ExchangerEnum.Binance)
+                    }).ToList();
 
-            //symbolList = await FillOkex(symbolList);
-            symbolList = await FillBittrex(symbolList);
-            symbolList = await FillHitBtc(symbolList);
-            var filteredResult = symbolList
-                .Where(
-                    s => !string.IsNullOrEmpty(s.Bittrex)
-                         || !string.IsNullOrEmpty(s.HitBtc)
-                         || !string.IsNullOrEmpty(s.Okex))
-                .Where(s => s.GlobalSymbol.EndsWith("BTC"))
-                .ToList();
-            return filteredResult;
-        }
+            globalSymbols = globalSymbols.FillExchangerSymbols(ExchangerEnum.Binance, binanceSymbols);
+            globalSymbols = globalSymbols.FillExchangerSymbols(ExchangerEnum.Bittrex, bittrexSymbols);
+            globalSymbols = globalSymbols.FillExchangerSymbols(ExchangerEnum.HitBtc, hitBtcSymbols);
+            globalSymbols = globalSymbols.FillExchangerSymbols(ExchangerEnum.KuCoin, kucoinSymbols);
 
-        public async Task<List<ExchangeSymbol>> FillOkex(List<ExchangeSymbol> globalSymbols)
-        {
-            var exchangerSymbols = await okexApi.GetSymbolsAsync();
-            foreach (var symbol in exchangerSymbols)
-            {
-                foreach (var exchangeSymbol in globalSymbols)
-                {
-                    if (SymbolHelper.ToGlobalSymbol(symbol, ExchangerEnum.Okex).Equals(exchangeSymbol.GlobalSymbol))
-                    {
-                        exchangeSymbol.Okex = symbol;
-                    }
-                }
-            }
-
-            return globalSymbols;
-        }
-
-        public async Task<List<ExchangeSymbol>> FillHitBtc(List<ExchangeSymbol> globalSymbols)
-        {
-            var exchangerSymbols = await hitbtcApi.GetSymbolsAsync();
-            foreach (var symbol in exchangerSymbols)
-            {
-                foreach (var exchangeSymbol in globalSymbols)
-                {
-                    if (SymbolHelper.ToGlobalSymbol(symbol, ExchangerEnum.HitBtc).Equals(exchangeSymbol.GlobalSymbol))
-                    {
-                        exchangeSymbol.HitBtc = symbol;
-                    }
-                }
-            }
-
-            return globalSymbols;
-        }
-
-        public async Task<List<ExchangeSymbol>> FillBittrex(List<ExchangeSymbol> globalSymbols)
-        {
-            var exchangerSymbols = await bittrexApi.GetSymbolsAsync();
-            foreach (var symbol in exchangerSymbols)
-            {
-                foreach (var exchangeSymbol in globalSymbols)
-                {
-                    if (SymbolHelper.ToGlobalSymbol(symbol, ExchangerEnum.Bittrex).Equals(exchangeSymbol.GlobalSymbol))
-                    {
-                        exchangeSymbol.Bittrex = symbol;
-                    }
-                }
-            }
-
-            return globalSymbols;
+            _memoryCache.Set(SymbolsKey, globalSymbols);
+            return globalSymbols.FilterByBaseCurency(currency);
         }
     }
 }

@@ -50,6 +50,12 @@ namespace ExchangersAnalizer.Extensions
                     // Bithumb is special symbol
                     return symbol;
                 }
+
+                case ExchangerEnum.KuCoin:
+                {
+                    // Bithumb is special symbol
+                    return symbol.Replace("-", string.Empty);
+                }
             }
         }
     }
