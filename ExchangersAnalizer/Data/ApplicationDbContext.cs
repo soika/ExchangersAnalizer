@@ -22,5 +22,7 @@ namespace ExchangersAnalizer.Data
         }
 
         public DbSet<Symbol> Symbols { get; set; }
+
+        public DbSet<Config> Configs { get; set; }
     }
 }
