@@ -47,14 +47,22 @@ namespace ExchangersAnalizer.Extensions
                 case ExchangerEnum.HitBtc:
                 case ExchangerEnum.Bithumb:
                 {
-                    // Bithumb is special symbol
                     return symbol;
                 }
 
                 case ExchangerEnum.KuCoin:
                 {
-                    // Bithumb is special symbol
                     return symbol.Replace("-", string.Empty);
+                }
+
+                case ExchangerEnum.Cryptopia:
+                {
+                    return symbol.Replace("/", string.Empty);
+                }
+
+                case ExchangerEnum.Yobit:
+                {
+                    return symbol.Replace("_", string.Empty).ToUpper();
                 }
             }
         }

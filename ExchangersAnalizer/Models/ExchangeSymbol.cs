@@ -23,5 +23,9 @@ namespace ExchangersAnalizer.Models
         public string Bittrex { get; set; }
 
         public string KuCoin { get; set; }
+
+        public string Cryptopia { get; set; }
+
+        public string Yobit { get; set; }
     }
 }

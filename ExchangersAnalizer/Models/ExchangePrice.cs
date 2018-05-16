@@ -19,5 +19,7 @@ namespace ExchangersAnalizer.Models
         public ExchangerEnum Exchanger { get; set; }
 
         public decimal LastPrice { get; set; }
+
+        public decimal Percent { get; set; }
     }
 }

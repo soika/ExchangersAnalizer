@@ -7,6 +7,8 @@
         HitBtc,
         Okex,
         Bittrex,
-        KuCoin
+        KuCoin,
+        Cryptopia,
+        Yobit
     }
 }

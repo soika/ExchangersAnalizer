@@ -1,15 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
+﻿// -----------------------------------------------------------------------
+// <copyright file="Program.cs" company="SóiKA Apps">
+//      All rights are reserved. Reproduction or transmission in whole or
+//      in part, in any form or by any means, electronic, mechanical or
+//      otherwise, is prohibited without the prior written consent of the 
+//      copyright owner.
+// </copyright>
+// <summary>
+//      Definition of the Program.cs class.
+// </summary>
+// -----------------------------------------------------------------------
 
 namespace ExchangersAnalizer
 {
+    using Microsoft.AspNetCore;
+    using Microsoft.AspNetCore.Hosting;
+
     public class Program
     {
         public static void Main(string[] args)
@@ -17,9 +22,11 @@ namespace ExchangersAnalizer
             BuildWebHost(args).Run();
         }
 
-        public static IWebHost BuildWebHost(string[] args) =>
-            WebHost.CreateDefaultBuilder(args)
+        public static IWebHost BuildWebHost(string[] args)
+        {
+            return WebHost.CreateDefaultBuilder(args)
                 .UseStartup<Startup>()
                 .Build();
+        }
     }
 }
