@@ -29,6 +29,9 @@ namespace ExchangersAnalizer.Services
         private readonly ExchangeBittrexAPI _bittrexApi;
         private readonly ExchangeHitbtcAPI _hitbtcApi;
         private readonly ExchangeKucoinAPI _kucoinApi;
+        private readonly ExchangeCryptopiaAPI _cryptopiaApi;
+        private readonly ExchangePoloniexAPI _poloniexApi;
+        private readonly ExchangeYobitAPI _yobitApi;
         private readonly IMemoryCache _memoryCache;
 
         public CoinInfoService(
@@ -36,12 +39,18 @@ namespace ExchangersAnalizer.Services
             ExchangeBinanceAPI binanceApi,
             ExchangeHitbtcAPI hitbtcApi,
             ExchangeKucoinAPI kucoinApi,
+            ExchangeCryptopiaAPI cryptopiaApi,
+            ExchangeYobitAPI yobitApi,
+            ExchangePoloniexAPI poloniexApi,
             IMemoryCache memoryCache)
         {
             _binanceApi = binanceApi;
             _bittrexApi = bittrexApi;
             _hitbtcApi = hitbtcApi;
             _kucoinApi = kucoinApi;
+            _cryptopiaApi = cryptopiaApi;
+            _yobitApi = yobitApi;
+            _poloniexApi = poloniexApi;
             _memoryCache = memoryCache;
         }
 

@@ -47,12 +47,9 @@ namespace ExchangersAnalizer
 
         private void ConfigDbContext(IServiceCollection services)
         {
-            var connection = Configuration["Production:SqliteConnectionString"];
+            var connection = Configuration.GetConnectionString("SQLiteConnection");
 
-            services.AddDbContext<ApplicationDbContext>(
-                options =>
-                    options.UseSqlite(connection)
-            );
+            services.AddDbContext<ApplicationDbContext>(options => options.UseSqlite(connection));
         }
 
         private void ConfigureMvcServices(IServiceCollection services)
@@ -90,6 +87,9 @@ namespace ExchangersAnalizer
             services.AddSingleton(typeof(ExchangeHitbtcAPI));
             //services.AddSingleton(typeof(ExchangeOkexAPI));
             services.AddSingleton(typeof(ExchangeKucoinAPI));
+            services.AddSingleton(typeof(ExchangeCryptopiaAPI));
+            services.AddSingleton(typeof(ExchangeYobitAPI));
+            services.AddSingleton(typeof(ExchangePoloniexAPI));
         }
     }
 }

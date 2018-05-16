@@ -12,6 +12,7 @@
 
 namespace ExchangersAnalizer.Data
 {
+    using Entities;
     using Microsoft.EntityFrameworkCore;
 
     public class ApplicationDbContext : DbContext
@@ -19,5 +20,7 @@ namespace ExchangersAnalizer.Data
         public ApplicationDbContext(DbContextOptions options) : base(options)
         {
         }
+
+        public DbSet<Symbol> Symbols { get; set; }
     }
 }
