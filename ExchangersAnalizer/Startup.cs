@@ -85,11 +85,9 @@ namespace ExchangersAnalizer
             services.AddSingleton(typeof(ExchangeBittrexAPI));
             services.AddSingleton(typeof(ExchangeBinanceAPI));
             services.AddSingleton(typeof(ExchangeHitbtcAPI));
-            //services.AddSingleton(typeof(ExchangeOkexAPI));
             services.AddSingleton(typeof(ExchangeKucoinAPI));
             services.AddSingleton(typeof(ExchangeCryptopiaAPI));
             services.AddSingleton(typeof(ExchangeYobitAPI));
-            services.AddSingleton(typeof(ExchangePoloniexAPI));
         }
     }
 }

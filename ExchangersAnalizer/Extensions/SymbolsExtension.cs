@@ -98,6 +98,40 @@ namespace ExchangersAnalizer.Extensions
 
                     return globalSymbols;
                 }
+
+                case ExchangerEnum.Cryptopia:
+                {
+                    foreach (var globalSymbol in globalSymbols)
+                    {
+                        foreach (var symbol in symbols)
+                        {
+                            if (SymbolHelper.ToGlobalSymbol(symbol, ExchangerEnum.Cryptopia)
+                                .Equals(globalSymbol.GlobalSymbol))
+                            {
+                                globalSymbol.Cryptopia = symbol;
+                            }
+                        }
+                    }
+
+                    return globalSymbols;
+                }
+
+                case ExchangerEnum.Yobit:
+                {
+                    foreach (var globalSymbol in globalSymbols)
+                    {
+                        foreach (var symbol in symbols)
+                        {
+                            if (SymbolHelper.ToGlobalSymbol(symbol, ExchangerEnum.Yobit)
+                                .Equals(globalSymbol.GlobalSymbol))
+                            {
+                                globalSymbol.Yobit = symbol;
+                            }
+                        }
+                    }
+
+                    return globalSymbols;
+                }
             }
         }
 

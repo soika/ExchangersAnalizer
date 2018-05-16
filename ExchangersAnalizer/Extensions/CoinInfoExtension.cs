@@ -32,7 +32,10 @@ namespace ExchangersAnalizer.Extensions
                     t => t.Key.Equals(coin.ExchangeSymbol.Binance, StringComparison.OrdinalIgnoreCase)
                          || t.Key.Equals(coin.ExchangeSymbol.Bittrex, StringComparison.OrdinalIgnoreCase)
                          || t.Key.Equals(coin.ExchangeSymbol.HitBtc, StringComparison.OrdinalIgnoreCase)
-                         || t.Key.Equals(coin.ExchangeSymbol.KuCoin, StringComparison.OrdinalIgnoreCase));
+                         || t.Key.Equals(coin.ExchangeSymbol.KuCoin, StringComparison.OrdinalIgnoreCase)
+                         || t.Key.Equals(coin.ExchangeSymbol.Cryptopia, StringComparison.OrdinalIgnoreCase)
+                         || t.Key.Equals(coin.ExchangeSymbol.Yobit, StringComparison.OrdinalIgnoreCase));
+
                 if (ticker.Key == null)
                 {
                     continue;
@@ -54,11 +57,13 @@ namespace ExchangersAnalizer.Extensions
 
                     case ExchangerEnum.Bittrex:
                     {
+                        var binancePrice = coin.ExchangePrices.ElementAt(0).LastPrice;
                         coin.ExchangePrices.Add(
                             new ExchangePrice
                             {
                                 Exchanger = ExchangerEnum.Bittrex,
-                                LastPrice = ticker.Value.Last
+                                LastPrice = ticker.Value.Last,
+                                Percent = (ticker.Value.Last - binancePrice) / binancePrice * 100
                             });
 
                         break;
@@ -66,11 +71,13 @@ namespace ExchangersAnalizer.Extensions
 
                     case ExchangerEnum.HitBtc:
                     {
+                        var binancePrice = coin.ExchangePrices.ElementAt(0).LastPrice;
                         coin.ExchangePrices.Add(
                             new ExchangePrice
                             {
                                 Exchanger = ExchangerEnum.HitBtc,
-                                LastPrice = ticker.Value.Last
+                                LastPrice = ticker.Value.Last,
+                                Percent = (ticker.Value.Last - binancePrice) / binancePrice * 100
                             });
 
                         break;
@@ -78,11 +85,41 @@ namespace ExchangersAnalizer.Extensions
 
                     case ExchangerEnum.KuCoin:
                     {
+                        var binancePrice = coin.ExchangePrices.ElementAt(0).LastPrice;
                         coin.ExchangePrices.Add(
                             new ExchangePrice
                             {
                                 Exchanger = ExchangerEnum.KuCoin,
-                                LastPrice = ticker.Value.Last
+                                LastPrice = ticker.Value.Last,
+                                Percent = (ticker.Value.Last - binancePrice) / binancePrice * 100
+                            });
+
+                        break;
+                    }
+
+                    case ExchangerEnum.Cryptopia:
+                    {
+                        var binancePrice = coin.ExchangePrices.ElementAt(0).LastPrice;
+                        coin.ExchangePrices.Add(
+                            new ExchangePrice
+                            {
+                                Exchanger = ExchangerEnum.Cryptopia,
+                                LastPrice = ticker.Value.Last,
+                                Percent = (ticker.Value.Last - binancePrice) / binancePrice * 100
+                            });
+
+                        break;
+                    }
+
+                    case ExchangerEnum.Yobit:
+                    {
+                        var binancePrice = coin.ExchangePrices.ElementAt(0).LastPrice;
+                        coin.ExchangePrices.Add(
+                            new ExchangePrice
+                            {
+                                Exchanger = ExchangerEnum.Yobit,
+                                LastPrice = ticker.Value.Last,
+                                Percent = (ticker.Value.Last - binancePrice) / binancePrice * 100
                             });
 
                         break;
@@ -103,7 +140,8 @@ namespace ExchangersAnalizer.Extensions
                     x => new
                     {
                         exchanger = x.Exchanger.ToString(),
-                        lastPrice = x.LastPrice
+                        lastPrice = x.LastPrice,
+                        percent = x.Percent
                     })
             };
         }
