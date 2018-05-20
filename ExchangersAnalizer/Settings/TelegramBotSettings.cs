@@ -1,29 +1,21 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="Config.cs" company="SóiKA Apps">
+// <copyright file="TelegramBotSettings.cs" company="SóiKA Apps">
 //      All rights are reserved. Reproduction or transmission in whole or
 //      in part, in any form or by any means, electronic, mechanical or
 //      otherwise, is prohibited without the prior written consent of the 
 //      copyright owner.
 // </copyright>
 // <summary>
-//      Definition of the Config.cs class.
+//      Definition of the TelegramBotSettings.cs class.
 // </summary>
 // -----------------------------------------------------------------------
 
-namespace ExchangersAnalizer.Entities
+namespace ExchangersAnalizer.Settings
 {
-    public class Config
+    public class TelegramBotSettings
     {
-        public int Id { get; set; }
+        public string AccessApiToken { get; set; }
 
-        public int RefreshInMinutes { get; set; }
-
-        public int NumberOfCoinsToSend { get; set; }
-
-        public string TelegramKey { get; set; }
-
-        public string TelegramChatGroups { get; set; }
-
-        public string AllowIPs { get; set; }
+        public string[] GroupIds { get; set; }
     }
 }

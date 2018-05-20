@@ -27,11 +27,11 @@ namespace ExchangersAnalizer.Services
         private const string SymbolsKey = "SYMBOLS";
         private readonly ExchangeBinanceAPI _binanceApi;
         private readonly ExchangeBittrexAPI _bittrexApi;
+        private readonly ExchangeCryptopiaAPI _cryptopiaApi;
         private readonly ExchangeHitbtcAPI _hitbtcApi;
         private readonly ExchangeKucoinAPI _kucoinApi;
-        private readonly ExchangeCryptopiaAPI _cryptopiaApi;
-        private readonly ExchangeYobitAPI _yobitApi;
         private readonly IMemoryCache _memoryCache;
+        private readonly ExchangeYobitAPI _yobitApi;
 
         public CoinInfoService(
             ExchangeBittrexAPI bittrexApi,
@@ -83,6 +83,9 @@ namespace ExchangersAnalizer.Services
             coins = coins.FillExchangePrice(ExchangerEnum.KuCoin, kucoinMarket);
             coins = coins.FillExchangePrice(ExchangerEnum.Cryptopia, cryptopiaMarket);
             //coins = coins.FillExchangePrice(ExchangerEnum.Yobit, yobitMarket);
+            coins = coins
+                .OrderByDescending(opt => opt.ExchangePrices.Max(price => price.Percent))
+                .ToList();
 
             _memoryCache.Set(CoinInfoKey, coins);
             return coins;

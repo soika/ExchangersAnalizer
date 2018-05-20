@@ -26,12 +26,12 @@ namespace ExchangersAnalizer.CronJobs.Tasks
         }
 
         /// <inheritdoc />
-        public string Schedule => "*/1000 * * * *";
+        public string Schedule => "*/5 * * * *";
 
         /// <inheritdoc />
         public async Task ExecuteAsync(CancellationToken cancellationToken)
         {
-            await coinInfoService.GetExchangeSymbols();
+            var symbols = await coinInfoService.GetExchangerCoinInfoAsync(); 
         }
     }
 }

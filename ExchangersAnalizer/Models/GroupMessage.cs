@@ -1,29 +1,25 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="Config.cs" company="SóiKA Apps">
+// <copyright file="GroupMessage.cs" company="SóiKA Apps">
 //      All rights are reserved. Reproduction or transmission in whole or
 //      in part, in any form or by any means, electronic, mechanical or
 //      otherwise, is prohibited without the prior written consent of the 
 //      copyright owner.
 // </copyright>
 // <summary>
-//      Definition of the Config.cs class.
+//      Definition of the GroupMessage.cs class.
 // </summary>
 // -----------------------------------------------------------------------
 
-namespace ExchangersAnalizer.Entities
+namespace ExchangersAnalizer.Models
 {
-    public class Config
+    using Telegram.Bot.Types.Enums;
+
+    public class GroupMessage
     {
-        public int Id { get; set; }
+        public string GroupId { get; set; }
 
-        public int RefreshInMinutes { get; set; }
+        public string Content { get; set; }
 
-        public int NumberOfCoinsToSend { get; set; }
-
-        public string TelegramKey { get; set; }
-
-        public string TelegramChatGroups { get; set; }
-
-        public string AllowIPs { get; set; }
+        public ParseMode ParseMode { get; set; } = ParseMode.Html;
     }
 }
