@@ -12,10 +12,12 @@
 
 namespace ExchangersAnalizer
 {
+    using System;
     using System.Linq;
     using CronJobs.Tasks;
     using Data;
     using ExchangeSharp;
+    using Extensions.Programs;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.EntityFrameworkCore;
@@ -74,6 +76,8 @@ namespace ExchangersAnalizer
         {
             // Tasks
             services.AddSingleton<IScheduledTask, CoinInfoGrabTask>();
+            services.AddSingleton<IScheduledTask, TelegramBotTask>();
+            services.AddScheduler();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -109,8 +113,8 @@ namespace ExchangersAnalizer
         {
             services.Configure<TelegramBotSettings>(Configuration.GetSection("TelegramBotSettings"));
             //services.Configure<SiteSettings>(Configuration.GetSection("SiteSettings"));
-            services.AddScoped<ICoinInfoService, CoinInfoService>();
-            services.AddScoped<ITelegramBotService, TelegramBotService>();
+            services.AddTransient<ICoinInfoService, CoinInfoService>();
+            services.AddTransient<ITelegramBotService, TelegramBotService>();
         }
 
         private static void ConfigExchangers(IServiceCollection services)

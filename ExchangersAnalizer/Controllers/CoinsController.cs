@@ -38,18 +38,7 @@ namespace ExchangersAnalizer.Controllers
         [HttpGet("")]
         public async Task<IActionResult> GetAllCoins()
         {
-            var coins = await _coinInfoService.GetExchangerCoinInfoAsync();
-            foreach (var coin in coins)
-            {
-                await _telegramBotService.SendGroupMessagesAsync(
-                    new GroupMessage
-                    {
-                        GroupId = "-1001277886153",
-                        Content = $"Coin {coin.ExchangeSymbol.GlobalSymbol}: \n" +
-                                  $"{coin.ExchangePrices.ElementAt(1).Exchanger} {coin.ExchangePrices.ElementAt(1).Percent}%"
-                    });
-            }
-
+            var coins = (await _coinInfoService.GetExchangerCoinInfoAsync()).ToList();
             return Ok(coins.Select(coin => coin.ToResponse()));
         }
 

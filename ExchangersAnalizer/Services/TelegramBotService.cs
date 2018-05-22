@@ -33,7 +33,7 @@ namespace ExchangersAnalizer.Services
             var botClient = new TelegramBotClient(_telegramBotSettings.Value.AccessApiToken);
             foreach (var message in messages)
             {
-                await botClient.SendTextMessageAsync(message.GroupId, message.Content, message.ParseMode);
+                await botClient.SendTextMessageAsync(_telegramBotSettings.Value.GroupIds[0], message.Content, message.ParseMode);
             }
         }
     }

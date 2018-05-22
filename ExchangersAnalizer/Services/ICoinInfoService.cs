@@ -21,6 +21,8 @@ namespace ExchangersAnalizer.Services
     {
         Task<IEnumerable<CoinInfo>> GetExchangerCoinInfoAsync(BaseCurrencyEnum currency = BaseCurrencyEnum.BTC);
 
+        Task<IEnumerable<CoinInfo>> ForceUpdateCoinInfoAsync(BaseCurrencyEnum currency = BaseCurrencyEnum.BTC);
+
         Task<List<ExchangeSymbol>> GetExchangeSymbols(BaseCurrencyEnum currency = BaseCurrencyEnum.BTC);
     }
 }
