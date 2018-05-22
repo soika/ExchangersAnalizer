@@ -12,28 +12,33 @@
 
 namespace ExchangersAnalizer.Controllers
 {
-    using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
     using Extensions;
     using Microsoft.AspNetCore.Mvc;
+    using Microsoft.Extensions.Options;
     using Models;
     using Services;
+    using Settings;
 
     [Route("api/[controller]")]
     public class CoinsController : Controller
     {
         private readonly ICoinInfoService _coinInfoService;
+        private readonly ITelegramBotService _telegramBotService;
 
-        public CoinsController(ICoinInfoService coinInfoService)
+        public CoinsController(
+            ICoinInfoService coinInfoService,
+            ITelegramBotService telegramBotService)
         {
             _coinInfoService = coinInfoService;
+            _telegramBotService = telegramBotService;
         }
 
-        [HttpGet]
+        [HttpGet("")]
         public async Task<IActionResult> GetAllCoins()
         {
-            var coins = await _coinInfoService.GetExchangerCoinInfoAsync();
+            var coins = (await _coinInfoService.GetExchangerCoinInfoAsync()).ToList();
             return Ok(coins.Select(coin => coin.ToResponse()));
         }
 

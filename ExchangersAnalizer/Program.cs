@@ -12,6 +12,7 @@
 
 namespace ExchangersAnalizer
 {
+    using Extensions.Programs;
     using Microsoft.AspNetCore;
     using Microsoft.AspNetCore.Hosting;
 
@@ -19,6 +20,7 @@ namespace ExchangersAnalizer
     {
         public static void Main(string[] args)
         {
+            // BuildWebHost(args).InitializeData().Run();
             BuildWebHost(args).Run();
         }
 

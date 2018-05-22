@@ -1,29 +1,20 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="Config.cs" company="SóiKA Apps">
+// <copyright file="ListBaseEnum.cs" company="SóiKA Apps">
 //      All rights are reserved. Reproduction or transmission in whole or
 //      in part, in any form or by any means, electronic, mechanical or
 //      otherwise, is prohibited without the prior written consent of the 
 //      copyright owner.
 // </copyright>
 // <summary>
-//      Definition of the Config.cs class.
+//      Definition of the ListBaseEnum.cs class.
 // </summary>
 // -----------------------------------------------------------------------
 
-namespace ExchangersAnalizer.Entities
+namespace ExchangersAnalizer.Enums
 {
-    public class Config
+    public enum ListBaseEnum
     {
-        public int Id { get; set; }
-
-        public int RefreshInMinutes { get; set; }
-
-        public int NumberOfCoinsToSend { get; set; }
-
-        public string TelegramKey { get; set; }
-
-        public string TelegramChatGroups { get; set; }
-
-        public string AllowIPs { get; set; }
+        GreaterThanBinance,
+        LessThanBinance
     }
 }

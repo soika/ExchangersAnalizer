@@ -27,11 +27,11 @@ namespace ExchangersAnalizer.Services
         private const string SymbolsKey = "SYMBOLS";
         private readonly ExchangeBinanceAPI _binanceApi;
         private readonly ExchangeBittrexAPI _bittrexApi;
+        private readonly ExchangeCryptopiaAPI _cryptopiaApi;
         private readonly ExchangeHitbtcAPI _hitbtcApi;
         private readonly ExchangeKucoinAPI _kucoinApi;
-        private readonly ExchangeCryptopiaAPI _cryptopiaApi;
-        private readonly ExchangeYobitAPI _yobitApi;
         private readonly IMemoryCache _memoryCache;
+        private readonly ExchangeYobitAPI _yobitApi;
 
         public CoinInfoService(
             ExchangeBittrexAPI bittrexApi,
@@ -83,6 +83,43 @@ namespace ExchangersAnalizer.Services
             coins = coins.FillExchangePrice(ExchangerEnum.KuCoin, kucoinMarket);
             coins = coins.FillExchangePrice(ExchangerEnum.Cryptopia, cryptopiaMarket);
             //coins = coins.FillExchangePrice(ExchangerEnum.Yobit, yobitMarket);
+            coins = coins
+                .OrderByDescending(opt => opt.ExchangePrices.Max(price => price.Percent))
+                .ToList();
+
+            _memoryCache.Set(CoinInfoKey, coins);
+            return coins;
+        }
+
+        /// <inheritdoc />
+        public async Task<IEnumerable<CoinInfo>> ForceUpdateCoinInfoAsync(
+            BaseCurrencyEnum currency = BaseCurrencyEnum.BTC)
+        {
+            var binanceMarket = (await _binanceApi.GetTickersAsync()).ToList();
+            var bittrexMarket = (await _bittrexApi.GetTickersAsync()).ToList();
+            var hitbtcMarket = (await _hitbtcApi.GetTickersAsync()).ToList();
+            var kucoinMarket = (await _kucoinApi.GetTickersAsync()).ToList();
+            var cryptopiaMarket = (await _cryptopiaApi.GetTickersAsync()).ToList();
+            //var yobitMarket = (await _yobitApi.GetTickersAsync()).ToList();
+
+            var symbols = await GetExchangeSymbols();
+            var coins = symbols.Select(
+                x => new CoinInfo
+                {
+                    ExchangeSymbol = x,
+                    Currency = BaseCurrencyEnum.BTC,
+                    ExchangePrices = new List<ExchangePrice>()
+                }).ToList();
+
+            coins = coins.FillExchangePrice(ExchangerEnum.Binance, binanceMarket);
+            coins = coins.FillExchangePrice(ExchangerEnum.Bittrex, bittrexMarket);
+            coins = coins.FillExchangePrice(ExchangerEnum.HitBtc, hitbtcMarket);
+            coins = coins.FillExchangePrice(ExchangerEnum.KuCoin, kucoinMarket);
+            coins = coins.FillExchangePrice(ExchangerEnum.Cryptopia, cryptopiaMarket);
+            //coins = coins.FillExchangePrice(ExchangerEnum.Yobit, yobitMarket);
+            coins = coins
+                .OrderByDescending(opt => opt.ExchangePrices.Max(price => price.Percent))
+                .ToList();
 
             _memoryCache.Set(CoinInfoKey, coins);
             return coins;

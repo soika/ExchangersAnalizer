@@ -12,15 +12,20 @@
 
 namespace ExchangersAnalizer
 {
+    using System;
+    using System.Linq;
     using CronJobs.Tasks;
     using Data;
     using ExchangeSharp;
+    using Extensions.Programs;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Services;
+    using Settings;
+    using Swashbuckle.AspNetCore.Swagger;
 
     public class Startup
     {
@@ -34,6 +39,8 @@ namespace ExchangersAnalizer
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            ConfigSwagger(services);
+
             ConfigureMvcServices(services);
 
             ConfigDbContext(services);
@@ -45,6 +52,12 @@ namespace ExchangersAnalizer
             ConfigCronJobs(services);
         }
 
+        private static void ConfigSwagger(IServiceCollection services)
+        {
+            services.AddSwaggerGen(
+                c => { c.SwaggerDoc("v1", new Info {Title = "API Documentation", Version = "v1.0"}); });
+        }
+
         private void ConfigDbContext(IServiceCollection services)
         {
             var connection = Configuration.GetConnectionString("SQLiteConnection");
@@ -52,20 +65,23 @@ namespace ExchangersAnalizer
             services.AddDbContext<ApplicationDbContext>(options => options.UseSqlite(connection));
         }
 
-        private void ConfigureMvcServices(IServiceCollection services)
+        private static void ConfigureMvcServices(IServiceCollection services)
         {
             services.AddMvc();
+            services.AddRouting(options => options.LowercaseUrls = true);
             services.AddMemoryCache();
         }
 
-        private void ConfigCronJobs(IServiceCollection services)
+        private static void ConfigCronJobs(IServiceCollection services)
         {
             // Tasks
             services.AddSingleton<IScheduledTask, CoinInfoGrabTask>();
+            services.AddSingleton<IScheduledTask, TelegramBotTask>();
+            services.AddScheduler();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public static void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
             if (env.IsDevelopment())
             {
@@ -73,14 +89,35 @@ namespace ExchangersAnalizer
             }
 
             app.UseMvc();
+
+            app.UseSwagger(
+                c =>
+                {
+                    c.PreSerializeFilters.Add(
+                        (document, request) =>
+                        {
+                            var paths = document.Paths.ToDictionary(
+                                item => item.Key.ToLowerInvariant(),
+                                item => item.Value);
+                            document.Paths.Clear();
+                            foreach (var pathItem in paths)
+                            {
+                                document.Paths.Add(pathItem.Key, pathItem.Value);
+                            }
+                        });
+                });
+            app.UseSwaggerUI(c => { c.SwaggerEndpoint("/swagger/v1/swagger.json", "API Documentation"); });
         }
 
         private void InjectServices(IServiceCollection services)
         {
-            services.AddScoped<ICoinInfoService, CoinInfoService>();
+            services.Configure<TelegramBotSettings>(Configuration.GetSection("TelegramBotSettings"));
+            //services.Configure<SiteSettings>(Configuration.GetSection("SiteSettings"));
+            services.AddTransient<ICoinInfoService, CoinInfoService>();
+            services.AddTransient<ITelegramBotService, TelegramBotService>();
         }
 
-        private void ConfigExchangers(IServiceCollection services)
+        private static void ConfigExchangers(IServiceCollection services)
         {
             services.AddSingleton(typeof(ExchangeBittrexAPI));
             services.AddSingleton(typeof(ExchangeBinanceAPI));

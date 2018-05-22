@@ -18,20 +18,20 @@ namespace ExchangersAnalizer.CronJobs.Tasks
 
     public class CoinInfoGrabTask : IScheduledTask
     {
-        private readonly ICoinInfoService coinInfoService;
+        private readonly ICoinInfoService _coinInfoService;
 
         public CoinInfoGrabTask(ICoinInfoService coinInfoService)
         {
-            this.coinInfoService = coinInfoService;
+            this._coinInfoService = coinInfoService;
         }
 
         /// <inheritdoc />
-        public string Schedule => "*/1000 * * * *";
+        public string Schedule => "*/5 * * * *";
 
         /// <inheritdoc />
         public async Task ExecuteAsync(CancellationToken cancellationToken)
         {
-            await coinInfoService.GetExchangeSymbols();
+            await _coinInfoService.ForceUpdateCoinInfoAsync(); 
         }
     }
 }

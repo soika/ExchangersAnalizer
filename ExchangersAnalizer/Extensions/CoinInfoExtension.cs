@@ -15,9 +15,11 @@ namespace ExchangersAnalizer.Extensions
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Text;
     using Enums;
     using ExchangeSharp;
     using Models;
+    using Telegram.Bot.Types.Enums;
 
     public static class CoinInfoExtension
     {
@@ -130,6 +132,14 @@ namespace ExchangersAnalizer.Extensions
             return coins;
         }
 
+        public static List<CoinInfo> ToPriceOrderByDescendingList(this List<CoinInfo> coins)
+        {
+            var reOrderCoins = coins
+                .OrderBy(opt => opt.ExchangePrices.Min(price => price.Percent))
+                .ToList();
+            return reOrderCoins;
+        }
+
         public static object ToResponse(this CoinInfo info)
         {
             return new
@@ -144,6 +154,48 @@ namespace ExchangersAnalizer.Extensions
                         percent = x.Percent
                     })
             };
+        }
+
+        public static GroupMessage ToTelegramMessage(
+            this List<CoinInfo> coins,
+            ListBaseEnum listBase = ListBaseEnum.GreaterThanBinance)
+        {
+            var message = new GroupMessage
+            {
+                ParseMode = ParseMode.Html
+            };
+            var strBuilder = new StringBuilder("<strong>TOP COIN PRICES COMPARE TO BINANCE</strong>").Append("\n\n");
+
+            foreach (var coin in coins)
+            {
+                strBuilder.Append($"<strong>{coin.ExchangeSymbol.GlobalSymbol}:</strong> ").Append("\n");
+
+                foreach (var price in coin.ExchangePrices)
+                {
+                    if (price.Exchanger == ExchangerEnum.Binance)
+                    {
+                        strBuilder.Append(
+                                $"{price.Exchanger}: {string.Format("{0:0.########}", price.LastPrice)} BTC.")
+                            .Append("\n");
+                        continue;
+                    }
+
+                    if (listBase == ListBaseEnum.GreaterThanBinance && price.Percent > 0 ||
+                        listBase == ListBaseEnum.LessThanBinance && price.Percent < 0)
+                    {
+                        strBuilder.Append(
+                                $"{price.Exchanger}: {string.Format("{0:0.########}", price.LastPrice)} BTC " +
+                                $"({string.Format("{0:0.###}", price.Percent)} % compare to Binance)")
+                            .Append("\n");
+                    }
+                }
+
+                strBuilder.Append("\n");
+            }
+
+            message.Content = strBuilder.ToString();
+
+            return message;
         }
     }
 }
