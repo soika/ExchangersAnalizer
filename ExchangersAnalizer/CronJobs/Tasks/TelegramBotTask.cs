@@ -31,7 +31,7 @@ namespace ExchangersAnalizer.CronJobs.Tasks
         }
 
         /// <inheritdoc />
-        public string Schedule => "*/10 * * * *";
+        public string Schedule => "*/30 * * * *";
 
         /// <inheritdoc />
         public async Task ExecuteAsync(CancellationToken cancellationToken)
