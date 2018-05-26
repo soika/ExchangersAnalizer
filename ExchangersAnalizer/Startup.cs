@@ -43,7 +43,7 @@ namespace ExchangersAnalizer
 
             ConfigureMvcServices(services);
 
-            ConfigDbContext(services);
+            //ConfigDbContext(services);
 
             InjectServices(services);
 
