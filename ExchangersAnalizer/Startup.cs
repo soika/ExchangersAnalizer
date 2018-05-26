@@ -112,7 +112,7 @@ namespace ExchangersAnalizer
         private void InjectServices(IServiceCollection services)
         {
             services.Configure<TelegramBotSettings>(Configuration.GetSection("TelegramBotSettings"));
-            //services.Configure<SiteSettings>(Configuration.GetSection("SiteSettings"));
+            services.Configure<SiteSettings>(Configuration.GetSection("SiteSettings"));
             services.AddTransient<ICoinInfoService, CoinInfoService>();
             services.AddTransient<ITelegramBotService, TelegramBotService>();
         }

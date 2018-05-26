@@ -20,8 +20,8 @@ namespace ExchangersAnalizer.Settings
 
         public string TelegramKey { get; set; }
 
-        public string TelegramChatGroups { get; set; }
-
         public string AllowIPs { get; set; }
+
+        public int SendMessageInMinutes { get; set; }
     }
 }

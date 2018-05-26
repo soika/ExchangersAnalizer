@@ -14,19 +14,25 @@ namespace ExchangersAnalizer.CronJobs.Tasks
 {
     using System.Threading;
     using System.Threading.Tasks;
+    using Microsoft.Extensions.Options;
     using Services;
+    using Settings;
 
     public class CoinInfoGrabTask : IScheduledTask
     {
         private readonly ICoinInfoService _coinInfoService;
+        private readonly IOptions<SiteSettings> _options;
 
-        public CoinInfoGrabTask(ICoinInfoService coinInfoService)
+        public CoinInfoGrabTask(
+            ICoinInfoService coinInfoService,
+            IOptions<SiteSettings> options)
         {
             this._coinInfoService = coinInfoService;
+            _options = options;
         }
 
         /// <inheritdoc />
-        public string Schedule => "*/5 * * * *";
+        public string Schedule => $"*/{_options.Value.RefreshInMinutes} * * * *";
 
         /// <inheritdoc />
         public async Task ExecuteAsync(CancellationToken cancellationToken)

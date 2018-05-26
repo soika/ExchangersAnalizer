@@ -17,27 +17,34 @@ namespace ExchangersAnalizer.CronJobs.Tasks
     using System.Threading.Tasks;
     using Enums;
     using Extensions;
+    using Microsoft.Extensions.Options;
     using Services;
+    using Settings;
 
     public class TelegramBotTask : IScheduledTask
     {
         private readonly ICoinInfoService _coinInfoService;
         private readonly ITelegramBotService _telegramBotService;
+        private readonly IOptions<SiteSettings> _options;
 
-        public TelegramBotTask(ITelegramBotService telegramBotService, ICoinInfoService coinInfoService)
+        public TelegramBotTask(
+            ITelegramBotService telegramBotService,
+            ICoinInfoService coinInfoService,
+            IOptions<SiteSettings> options)
         {
             _telegramBotService = telegramBotService;
             _coinInfoService = coinInfoService;
+            _options = options;
         }
 
         /// <inheritdoc />
-        public string Schedule => "*/30 * * * *";
+        public string Schedule => $"*/{_options.Value.SendMessageInMinutes} * * * *";
 
         /// <inheritdoc />
         public async Task ExecuteAsync(CancellationToken cancellationToken)
         {
             var greaterPriceCoins = (await _coinInfoService.GetExchangerCoinInfoAsync()).ToList();
-            var msg1 = greaterPriceCoins.Take(20).ToList().ToTelegramMessage();
+            var msg1 = greaterPriceCoins.Take(_options.Value.NumberOfCoinsToSend).ToList().ToTelegramMessage();
             await _telegramBotService.SendGroupMessagesAsync(msg1);
         }
     }
