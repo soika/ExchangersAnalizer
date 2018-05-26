@@ -132,6 +132,131 @@ namespace ExchangersAnalizer.Extensions
             return coins;
         }
 
+        public static List<CoinInfo> FillCoinPrices(
+            this List<CoinInfo> coins,
+            ExchangerEnum exchanger,
+            List<KeyValuePair<string, ExchangeTicker>> marketTickers)
+        {
+            foreach (var coin in coins)
+            {
+                var ticker = marketTickers.FirstOrDefault(
+                    t => t.Key.Equals(coin.ExchangeSymbol.Binance, StringComparison.OrdinalIgnoreCase)
+                         || t.Key.Equals(coin.ExchangeSymbol.Bittrex, StringComparison.OrdinalIgnoreCase)
+                         || t.Key.Equals(coin.ExchangeSymbol.HitBtc, StringComparison.OrdinalIgnoreCase)
+                         || t.Key.Equals(coin.ExchangeSymbol.KuCoin, StringComparison.OrdinalIgnoreCase)
+                         || t.Key.Equals(coin.ExchangeSymbol.Cryptopia, StringComparison.OrdinalIgnoreCase)
+                         || t.Key.Equals(coin.ExchangeSymbol.Yobit, StringComparison.OrdinalIgnoreCase));
+
+                if (ticker.Key == null)
+                {
+                    continue;
+                }
+
+                switch (exchanger)
+                {
+                    case ExchangerEnum.Binance:
+                    {
+                        coin.ExchangePrices.Add(
+                            new ExchangePrice
+                            {
+                                Exchanger = ExchangerEnum.Binance,
+                                LastPrice = ticker.Value.Last
+                            });
+
+                        break;
+                    }
+
+                    case ExchangerEnum.Bittrex:
+                    {
+                        coin.ExchangePrices.Add(
+                            new ExchangePrice
+                            {
+                                Exchanger = ExchangerEnum.Bittrex,
+                                LastPrice = ticker.Value.Last
+                            });
+
+                        break;
+                    }
+
+                    case ExchangerEnum.HitBtc:
+                    {
+                        coin.ExchangePrices.Add(
+                            new ExchangePrice
+                            {
+                                Exchanger = ExchangerEnum.HitBtc,
+                                LastPrice = ticker.Value.Last
+                            });
+
+                        break;
+                    }
+
+                    case ExchangerEnum.KuCoin:
+                    {
+                        coin.ExchangePrices.Add(
+                            new ExchangePrice
+                            {
+                                Exchanger = ExchangerEnum.KuCoin,
+                                LastPrice = ticker.Value.Last
+                            });
+
+                        break;
+                    }
+
+                    case ExchangerEnum.Cryptopia:
+                    {
+                        coin.ExchangePrices.Add(
+                            new ExchangePrice
+                            {
+                                Exchanger = ExchangerEnum.Cryptopia,
+                                LastPrice = ticker.Value.Last
+                            });
+
+                        break;
+                    }
+
+                    case ExchangerEnum.Yobit:
+                    {
+                        coin.ExchangePrices.Add(
+                            new ExchangePrice
+                            {
+                                Exchanger = ExchangerEnum.Yobit,
+                                LastPrice = ticker.Value.Last
+                            });
+
+                        break;
+                    }
+                }
+            }
+
+            return coins;
+        }
+
+        public static List<CoinInfo> ToAnalizedExchangePrice(
+            this List<CoinInfo> coins)
+        {
+            foreach (var coin in coins)
+            {
+                var lowestPrice = coin.ExchangePrices.Min(c => c.LastPrice);
+                var compareToExchanger = ExchangerEnum.Binance;
+
+                foreach (var coinExchangePrice in coin.ExchangePrices)
+                {
+                    coinExchangePrice.Percent = (coinExchangePrice.LastPrice - lowestPrice) / lowestPrice * 100;
+                    if (coinExchangePrice.Percent == 0)
+                    {
+                        compareToExchanger = coinExchangePrice.Exchanger;
+                    }
+                }
+
+                foreach (var coinExchangePrice in coin.ExchangePrices)
+                {
+                    coinExchangePrice.CompareToExchanger = compareToExchanger;
+                }
+            }
+
+            return coins;
+        }
+
         public static List<CoinInfo> ToPriceOrderByDescendingList(this List<CoinInfo> coins)
         {
             var reOrderCoins = coins
@@ -164,7 +289,7 @@ namespace ExchangersAnalizer.Extensions
             {
                 ParseMode = ParseMode.Html
             };
-            var strBuilder = new StringBuilder("<strong>TOP COIN PRICES COMPARE TO BINANCE</strong>").Append("\n\n");
+            var strBuilder = new StringBuilder("<strong>TOP COIN PRICES COMPARE</strong>").Append("\n\n");
 
             foreach (var coin in coins)
             {
@@ -172,7 +297,7 @@ namespace ExchangersAnalizer.Extensions
 
                 foreach (var price in coin.ExchangePrices)
                 {
-                    if (price.Exchanger == ExchangerEnum.Binance)
+                    if (price.Percent == 0)
                     {
                         strBuilder.Append(
                                 $"{price.Exchanger}: {string.Format("{0:0.########}", price.LastPrice)} BTC.")
@@ -180,21 +305,19 @@ namespace ExchangersAnalizer.Extensions
                         continue;
                     }
 
-                    if (listBase == ListBaseEnum.GreaterThanBinance && price.Percent > 0 ||
-                        listBase == ListBaseEnum.LessThanBinance && price.Percent < 0)
-                    {
-                        strBuilder.Append(
-                                $"{price.Exchanger}: {string.Format("{0:0.########}", price.LastPrice)} BTC " +
-                                $"({string.Format("{0:0.###}", price.Percent)} % compare to Binance)")
-                            .Append("\n");
-                    }
+                    var priceBold = price.Percent >= 4
+                        ? $"<strong>{string.Format("{0:0.###}", price.Percent)}</strong>"
+                        : $"{string.Format("{0:0.###}", price.Percent)}";
+                    strBuilder.Append(
+                            $"{price.Exchanger}: {string.Format("{0:0.########}", price.LastPrice)} BTC " +
+                            $"({priceBold} % compare to <strong>{price.CompareToExchanger.ToString()}</strong>)")
+                        .Append("\n");
                 }
 
                 strBuilder.Append("\n");
             }
 
             message.Content = strBuilder.ToString();
-
             return message;
         }
     }

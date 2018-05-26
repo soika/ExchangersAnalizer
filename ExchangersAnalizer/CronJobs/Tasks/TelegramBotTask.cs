@@ -37,12 +37,8 @@ namespace ExchangersAnalizer.CronJobs.Tasks
         public async Task ExecuteAsync(CancellationToken cancellationToken)
         {
             var greaterPriceCoins = (await _coinInfoService.GetExchangerCoinInfoAsync()).ToList();
-            var lessPriceCoins = greaterPriceCoins.ToPriceOrderByDescendingList();
-
-            var msg1 = greaterPriceCoins.Take(10).ToList().ToTelegramMessage();
-            var msg2 = lessPriceCoins.Take(10).ToList().ToTelegramMessage(ListBaseEnum.LessThanBinance);
-
-            await _telegramBotService.SendGroupMessagesAsync(msg1, msg2);
+            var msg1 = greaterPriceCoins.Take(20).ToList().ToTelegramMessage();
+            await _telegramBotService.SendGroupMessagesAsync(msg1);
         }
     }
 }
