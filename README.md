@@ -30,3 +30,6 @@ dotnet run -c Debug
 ```sh
 dotnet punlish
 ```
+## Run as windows service
+
+After excuting publish command go to the published folder and find the .dll: 
