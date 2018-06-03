@@ -22,14 +22,22 @@ cd .../PATH_TO_FOLDER/ExchangersAnalizer
 ```sh
 dotnet restore
 ```
-4. For *Run*:
+4. For *Run* with appsettings.Development.json:
 ```sh
 dotnet run -c Debug
 ```
-5. For *Publish*:
+5. For *Publish* appsettings.Production.json:
 ```sh
-dotnet punlish
+dotnet punlish -c Release
+```
+or
+```sh
+dotnet publish -c Release -o E:\Workspace\Projects\CSharp\Publish\ExchangersAnalizer
+```
+## Run publish files:
+Go to publish folder and run command:
+```sh
+dotnet ExchangersAnalizer.dll
 ```
 ## Run as windows service
-
-After excuting publish command go to the published folder and find the .dll: 
+Coming soon
