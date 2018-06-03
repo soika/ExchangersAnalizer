@@ -10,8 +10,23 @@ Open terminal and run the command:
 dotnet --version
 ```
 ## Run & Build
-1. Clone the repository https://github.com/soika/ExchangersAnalizer
-2. Go to your clone folder: `cd ...PATH_TO_FOLDER/ExchangersAnalizer`
-3. Restore packages: `dotnet restore`
-4. For *Run*: `dotnet run -c debug` or `dotnet run -c release`
-5. For *Publish*: `dotnet publish`
+1. Clone the repository
+```sh
+https://github.com/soika/ExchangersAnalizer
+```
+2. Go to your clone folder:
+```sh
+cd .../PATH_TO_FOLDER/ExchangersAnalizer
+```
+3. Restore packages: 
+```sh
+dotnet restore
+```
+4. For *Run*:
+```sh
+dotnet run -c Debug
+```
+5. For *Publish*:
+```sh
+dotnet punlish
+```
