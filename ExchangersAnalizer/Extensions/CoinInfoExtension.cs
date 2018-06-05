@@ -23,115 +23,6 @@ namespace ExchangersAnalizer.Extensions
 
     public static class CoinInfoExtension
     {
-        public static List<CoinInfo> FillExchangePrice(
-            this List<CoinInfo> coins,
-            ExchangerEnum exchanger,
-            List<KeyValuePair<string, ExchangeTicker>> marketTickers)
-        {
-            foreach (var coin in coins)
-            {
-                var ticker = marketTickers.FirstOrDefault(
-                    t => t.Key.Equals(coin.ExchangeSymbol.Binance, StringComparison.OrdinalIgnoreCase)
-                         || t.Key.Equals(coin.ExchangeSymbol.Bittrex, StringComparison.OrdinalIgnoreCase)
-                         || t.Key.Equals(coin.ExchangeSymbol.HitBtc, StringComparison.OrdinalIgnoreCase)
-                         || t.Key.Equals(coin.ExchangeSymbol.KuCoin, StringComparison.OrdinalIgnoreCase)
-                         || t.Key.Equals(coin.ExchangeSymbol.Cryptopia, StringComparison.OrdinalIgnoreCase)
-                         || t.Key.Equals(coin.ExchangeSymbol.Yobit, StringComparison.OrdinalIgnoreCase));
-
-                if (ticker.Key == null)
-                {
-                    continue;
-                }
-
-                switch (exchanger)
-                {
-                    case ExchangerEnum.Binance:
-                    {
-                        coin.ExchangePrices.Add(
-                            new ExchangePrice
-                            {
-                                Exchanger = ExchangerEnum.Binance,
-                                LastPrice = ticker.Value.Last
-                            });
-
-                        break;
-                    }
-
-                    case ExchangerEnum.Bittrex:
-                    {
-                        var binancePrice = coin.ExchangePrices.ElementAt(0).LastPrice;
-                        coin.ExchangePrices.Add(
-                            new ExchangePrice
-                            {
-                                Exchanger = ExchangerEnum.Bittrex,
-                                LastPrice = ticker.Value.Last,
-                                Percent = (ticker.Value.Last - binancePrice) / binancePrice * 100
-                            });
-
-                        break;
-                    }
-
-                    case ExchangerEnum.HitBtc:
-                    {
-                        var binancePrice = coin.ExchangePrices.ElementAt(0).LastPrice;
-                        coin.ExchangePrices.Add(
-                            new ExchangePrice
-                            {
-                                Exchanger = ExchangerEnum.HitBtc,
-                                LastPrice = ticker.Value.Last,
-                                Percent = (ticker.Value.Last - binancePrice) / binancePrice * 100
-                            });
-
-                        break;
-                    }
-
-                    case ExchangerEnum.KuCoin:
-                    {
-                        var binancePrice = coin.ExchangePrices.ElementAt(0).LastPrice;
-                        coin.ExchangePrices.Add(
-                            new ExchangePrice
-                            {
-                                Exchanger = ExchangerEnum.KuCoin,
-                                LastPrice = ticker.Value.Last,
-                                Percent = (ticker.Value.Last - binancePrice) / binancePrice * 100
-                            });
-
-                        break;
-                    }
-
-                    case ExchangerEnum.Cryptopia:
-                    {
-                        var binancePrice = coin.ExchangePrices.ElementAt(0).LastPrice;
-                        coin.ExchangePrices.Add(
-                            new ExchangePrice
-                            {
-                                Exchanger = ExchangerEnum.Cryptopia,
-                                LastPrice = ticker.Value.Last,
-                                Percent = (ticker.Value.Last - binancePrice) / binancePrice * 100
-                            });
-
-                        break;
-                    }
-
-                    case ExchangerEnum.Yobit:
-                    {
-                        var binancePrice = coin.ExchangePrices.ElementAt(0).LastPrice;
-                        coin.ExchangePrices.Add(
-                            new ExchangePrice
-                            {
-                                Exchanger = ExchangerEnum.Yobit,
-                                LastPrice = ticker.Value.Last,
-                                Percent = (ticker.Value.Last - binancePrice) / binancePrice * 100
-                            });
-
-                        break;
-                    }
-                }
-            }
-
-            return coins;
-        }
-
         public static List<CoinInfo> FillCoinPrices(
             this List<CoinInfo> coins,
             ExchangerEnum exchanger,
@@ -145,6 +36,7 @@ namespace ExchangersAnalizer.Extensions
                          || t.Key.Equals(coin.ExchangeSymbol.HitBtc, StringComparison.OrdinalIgnoreCase)
                          || t.Key.Equals(coin.ExchangeSymbol.KuCoin, StringComparison.OrdinalIgnoreCase)
                          || t.Key.Equals(coin.ExchangeSymbol.Cryptopia, StringComparison.OrdinalIgnoreCase)
+                         || t.Key.Equals(coin.ExchangeSymbol.Okex, StringComparison.OrdinalIgnoreCase)
                          || t.Key.Equals(coin.ExchangeSymbol.Yobit, StringComparison.OrdinalIgnoreCase));
 
                 if (ticker.Key == null)
@@ -220,6 +112,18 @@ namespace ExchangersAnalizer.Extensions
                             new ExchangePrice
                             {
                                 Exchanger = ExchangerEnum.Yobit,
+                                LastPrice = ticker.Value.Last
+                            });
+
+                        break;
+                    }
+
+                    case ExchangerEnum.Okex:
+                    {
+                        coin.ExchangePrices.Add(
+                            new ExchangePrice
+                            {
+                                Exchanger = ExchangerEnum.Okex,
                                 LastPrice = ticker.Value.Last
                             });
 
@@ -256,14 +160,6 @@ namespace ExchangersAnalizer.Extensions
             }
 
             return coins;
-        }
-
-        public static List<CoinInfo> ToPriceOrderByDescendingList(this List<CoinInfo> coins)
-        {
-            var reOrderCoins = coins
-                .OrderBy(opt => opt.ExchangePrices.Min(price => price.Percent))
-                .ToList();
-            return reOrderCoins;
         }
 
         public static object ToResponse(this CoinInfo info)
