@@ -27,7 +27,7 @@ namespace ExchangersAnalizer.CronJobs.Tasks
             ICoinInfoService coinInfoService,
             IOptions<SiteSettings> options)
         {
-            this._coinInfoService = coinInfoService;
+            _coinInfoService = coinInfoService;
             _options = options;
         }
 

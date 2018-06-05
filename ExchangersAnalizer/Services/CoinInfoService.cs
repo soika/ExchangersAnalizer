@@ -19,7 +19,9 @@ namespace ExchangersAnalizer.Services
     using ExchangeSharp;
     using Extensions;
     using Microsoft.Extensions.Caching.Memory;
+    using Microsoft.Extensions.Options;
     using Models;
+    using Settings;
 
     public class CoinInfoService : ICoinInfoService
     {
@@ -33,6 +35,7 @@ namespace ExchangersAnalizer.Services
         private readonly IMemoryCache _memoryCache;
         private readonly ExchangeYobitAPI _yobitApi;
         private readonly ExchangeOkexAPI _okexApi;
+        private readonly IOptions<SiteSettings> _options;
 
         public CoinInfoService(
             ExchangeBittrexAPI bittrexApi,
@@ -42,7 +45,8 @@ namespace ExchangersAnalizer.Services
             ExchangeCryptopiaAPI cryptopiaApi,
             ExchangeYobitAPI yobitApi,
             ExchangeOkexAPI okexApi,
-            IMemoryCache memoryCache)
+            IMemoryCache memoryCache,
+            IOptions<SiteSettings> options)
         {
             _binanceApi = binanceApi;
             _bittrexApi = bittrexApi;
@@ -51,7 +55,8 @@ namespace ExchangersAnalizer.Services
             _cryptopiaApi = cryptopiaApi;
             _yobitApi = yobitApi;
             _memoryCache = memoryCache;
-            this._okexApi = okexApi;
+            _okexApi = okexApi;
+            _options = options;
         }
 
         /// <inheritdoc />
@@ -142,7 +147,7 @@ namespace ExchangersAnalizer.Services
             var hitBtcSymbols = (await _hitbtcApi.GetSymbolsAsync()).ToArray();
             var kucoinSymbols = (await _kucoinApi.GetSymbolsAsync()).ToArray();
             var cryptopiaSymbols = (await _cryptopiaApi.GetSymbolsAsync()).ToArray();
-            var okexSymbols = (await this._okexApi.GetSymbolsAsync()).ToArray();
+            //var okexSymbols = (await this._okexApi.GetSymbolsAsync()).ToArray();
             //var yobitSymbols = (await _yobitApi.GetSymbolsAsync()).ToArray();
 
             var globalSymbols = binanceSymbols.Select(
@@ -151,6 +156,9 @@ namespace ExchangersAnalizer.Services
                     {
                         GlobalSymbol = SymbolHelper.ToGlobalSymbol(x, ExchangerEnum.Binance)
                     }).ToList();
+
+            // Ignore spam coins
+            globalSymbols = globalSymbols.IgnoreSymbols(_options.Value.IgnoreCoins);
 
             globalSymbols = globalSymbols.FillExchangerSymbols(ExchangerEnum.Binance, binanceSymbols);
             globalSymbols = globalSymbols.FillExchangerSymbols(ExchangerEnum.Bittrex, bittrexSymbols);
