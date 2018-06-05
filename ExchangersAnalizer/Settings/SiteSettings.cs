@@ -23,5 +23,9 @@ namespace ExchangersAnalizer.Settings
         public string AllowIPs { get; set; }
 
         public int SendMessageInMinutes { get; set; }
+
+        public string[] IgnoreCoins { get; set; }
+
+        public int CriticalPercent { get; set; }
     }
 }

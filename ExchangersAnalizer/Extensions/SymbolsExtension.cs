@@ -135,6 +135,11 @@ namespace ExchangersAnalizer.Extensions
             }
         }
 
+        public static List<ExchangeSymbol> IgnoreSymbols(this List<ExchangeSymbol> symbols, string[] ignoreSymbols)
+        {
+            return symbols.Where(s => !ignoreSymbols.Contains(s.GlobalSymbol)).ToList();
+        }
+
         public static List<ExchangeSymbol> FilterByBaseCurency(
             this List<ExchangeSymbol> globalSymbols,
             BaseCurrencyEnum currency = BaseCurrencyEnum.BTC)
