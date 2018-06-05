@@ -32,6 +32,7 @@ namespace ExchangersAnalizer.Services
         private readonly ExchangeKucoinAPI _kucoinApi;
         private readonly IMemoryCache _memoryCache;
         private readonly ExchangeYobitAPI _yobitApi;
+        private readonly ExchangeOkexAPI _okexApi;
 
         public CoinInfoService(
             ExchangeBittrexAPI bittrexApi,
@@ -40,6 +41,7 @@ namespace ExchangersAnalizer.Services
             ExchangeKucoinAPI kucoinApi,
             ExchangeCryptopiaAPI cryptopiaApi,
             ExchangeYobitAPI yobitApi,
+            ExchangeOkexAPI okexApi,
             IMemoryCache memoryCache)
         {
             _binanceApi = binanceApi;
@@ -49,6 +51,7 @@ namespace ExchangersAnalizer.Services
             _cryptopiaApi = cryptopiaApi;
             _yobitApi = yobitApi;
             _memoryCache = memoryCache;
+            this._okexApi = okexApi;
         }
 
         /// <inheritdoc />
@@ -139,6 +142,7 @@ namespace ExchangersAnalizer.Services
             var hitBtcSymbols = (await _hitbtcApi.GetSymbolsAsync()).ToArray();
             var kucoinSymbols = (await _kucoinApi.GetSymbolsAsync()).ToArray();
             var cryptopiaSymbols = (await _cryptopiaApi.GetSymbolsAsync()).ToArray();
+            var okexSymbols = (await this._okexApi.GetSymbolsAsync()).ToArray();
             //var yobitSymbols = (await _yobitApi.GetSymbolsAsync()).ToArray();
 
             var globalSymbols = binanceSymbols.Select(
@@ -153,6 +157,7 @@ namespace ExchangersAnalizer.Services
             globalSymbols = globalSymbols.FillExchangerSymbols(ExchangerEnum.HitBtc, hitBtcSymbols);
             globalSymbols = globalSymbols.FillExchangerSymbols(ExchangerEnum.KuCoin, kucoinSymbols);
             globalSymbols = globalSymbols.FillExchangerSymbols(ExchangerEnum.Cryptopia, cryptopiaSymbols);
+            //globalSymbols = globalSymbols.FillExchangerSymbols(ExchangerEnum.Okex, okexSymbols);
             //globalSymbols = globalSymbols.FillExchangerSymbols(ExchangerEnum.Yobit, yobitSymbols);
 
             _memoryCache.Set(SymbolsKey, globalSymbols);
