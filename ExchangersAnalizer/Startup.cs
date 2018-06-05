@@ -125,6 +125,7 @@ namespace ExchangersAnalizer
             services.AddSingleton(typeof(ExchangeKucoinAPI));
             services.AddSingleton(typeof(ExchangeCryptopiaAPI));
             services.AddSingleton(typeof(ExchangeYobitAPI));
+            services.AddSingleton(typeof(ExchangeOkexAPI));
         }
     }
 }

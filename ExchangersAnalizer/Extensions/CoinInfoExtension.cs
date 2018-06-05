@@ -236,7 +236,8 @@ namespace ExchangersAnalizer.Extensions
         {
             foreach (var coin in coins)
             {
-                var lowestPrice = coin.ExchangePrices.Min(c => c.LastPrice);
+                var lowestPrice = coin.ExchangePrices.Where(p => p.LastPrice > 0).Min(c => c.LastPrice);
+
                 var compareToExchanger = ExchangerEnum.Binance;
 
                 foreach (var coinExchangePrice in coin.ExchangePrices)
