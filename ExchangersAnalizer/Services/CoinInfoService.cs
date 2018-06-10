@@ -36,7 +36,6 @@ namespace ExchangersAnalizer.Services
         private readonly IMemoryCache _memoryCache;
         private readonly MinExchangeOkexAPI _okexApi;
         private readonly IOptions<SiteSettings> _options;
-        private readonly ExchangeYobitAPI _yobitApi;
 
         public CoinInfoService(
             ExchangeBittrexAPI bittrexApi,
@@ -44,7 +43,6 @@ namespace ExchangersAnalizer.Services
             ExchangeHitbtcAPI hitbtcApi,
             ExchangeKucoinAPI kucoinApi,
             ExchangeCryptopiaAPI cryptopiaApi,
-            ExchangeYobitAPI yobitApi,
             MinExchangeOkexAPI okexApi,
             IMemoryCache memoryCache,
             IOptions<SiteSettings> options)
@@ -54,7 +52,6 @@ namespace ExchangersAnalizer.Services
             _hitbtcApi = hitbtcApi;
             _kucoinApi = kucoinApi;
             _cryptopiaApi = cryptopiaApi;
-            _yobitApi = yobitApi;
             _memoryCache = memoryCache;
             _okexApi = okexApi;
             _options = options;
@@ -141,19 +138,19 @@ namespace ExchangersAnalizer.Services
 
         public async Task<List<ExchangeSymbol>> GetExchangeSymbols(BaseCurrencyEnum currency = BaseCurrencyEnum.BTC)
         {
+            var ignoreCoinSettings = _options.Value.IgnoreCoinSettings;
             var cachedSymbols = _memoryCache.Get<List<ExchangeSymbol>>(SymbolsKey);
             if (cachedSymbols != null)
             {
                 return cachedSymbols;
             }
 
-            var binanceSymbols = (await _binanceApi.GetSymbolsAsync()).ToArray();
-            var bittrexSymbols = (await _bittrexApi.GetSymbolsAsync()).ToArray();
-            var hitBtcSymbols = (await _hitbtcApi.GetSymbolsAsync()).ToArray();
-            var kucoinSymbols = (await _kucoinApi.GetSymbolsAsync()).ToArray();
-            var cryptopiaSymbols = (await _cryptopiaApi.GetSymbolsAsync()).ToArray();
-            var okexSymbols = (await _okexApi.GetSymbolsAsync()).ToArray();
-            //var yobitSymbols = (await _yobitApi.GetSymbolsAsync()).ToArray();
+            var binanceSymbols = (await _binanceApi.GetSymbolsAsync()).ToList().FilterByBaseCurency(currency);
+            var bittrexSymbols = (await _bittrexApi.GetSymbolsAsync()).ToList().FilterByBaseCurency(currency);
+            var hitBtcSymbols = (await _hitbtcApi.GetSymbolsAsync()).ToList().FilterByBaseCurency(currency);
+            var kucoinSymbols = (await _kucoinApi.GetSymbolsAsync()).ToList().FilterByBaseCurency(currency);
+            var cryptopiaSymbols = (await _cryptopiaApi.GetSymbolsAsync()).ToList().FilterByBaseCurency(currency);
+            var okexSymbols = (await _okexApi.GetSymbolsAsync()).ToList().FilterByBaseCurency(currency);
 
             var globalSymbols = binanceSymbols.Select(
                 x =>
@@ -162,21 +159,25 @@ namespace ExchangersAnalizer.Services
                         GlobalSymbol = SymbolHelper.ToGlobalSymbol(x, ExchangerEnum.Binance)
                     }).ToList();
 
-            // Ignore spam coins
-            globalSymbols = globalSymbols.IgnoreSymbols(_options.Value.IgnoreCoins);
+            if (ignoreCoinSettings != null)
+            {
+                binanceSymbols = binanceSymbols.FilterByIgnoreCoins(ignoreCoinSettings, ExchangerEnum.Binance);
+                bittrexSymbols = bittrexSymbols.FilterByIgnoreCoins(ignoreCoinSettings, ExchangerEnum.Bittrex);
+                hitBtcSymbols = hitBtcSymbols.FilterByIgnoreCoins(ignoreCoinSettings, ExchangerEnum.HitBtc);
+                kucoinSymbols = kucoinSymbols.FilterByIgnoreCoins(ignoreCoinSettings, ExchangerEnum.KuCoin);
+                cryptopiaSymbols = cryptopiaSymbols.FilterByIgnoreCoins(ignoreCoinSettings, ExchangerEnum.Cryptopia);
+                okexSymbols = okexSymbols.FilterByIgnoreCoins(ignoreCoinSettings, ExchangerEnum.Okex);
+            }
 
             globalSymbols = globalSymbols.FillExchangerSymbols(ExchangerEnum.Binance, binanceSymbols);
             globalSymbols = globalSymbols.FillExchangerSymbols(ExchangerEnum.Bittrex, bittrexSymbols);
             globalSymbols = globalSymbols.FillExchangerSymbols(ExchangerEnum.HitBtc, hitBtcSymbols);
             globalSymbols = globalSymbols.FillExchangerSymbols(ExchangerEnum.KuCoin, kucoinSymbols);
             globalSymbols = globalSymbols.FillExchangerSymbols(ExchangerEnum.Cryptopia, cryptopiaSymbols);
-            globalSymbols = globalSymbols.FillExchangerSymbols(
-                ExchangerEnum.Okex,
-                okexSymbols.FilterByBaseCurency(currency));
-            //globalSymbols = globalSymbols.FillExchangerSymbols(ExchangerEnum.Yobit, yobitSymbols);
+            globalSymbols = globalSymbols.FillExchangerSymbols(ExchangerEnum.Okex, okexSymbols);
 
             _memoryCache.Set(SymbolsKey, globalSymbols);
-            return globalSymbols.FilterByBaseCurency(currency);
+            return globalSymbols;
         }
     }
 }
