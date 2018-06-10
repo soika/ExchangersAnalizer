@@ -24,7 +24,7 @@ namespace ExchangersAnalizer.Settings
 
         public int SendMessageInMinutes { get; set; }
 
-        public string[] IgnoreCoins { get; set; }
+        public IgnoreCoinSettings[] IgnoreCoinSettings { get; set; }
 
         public int CriticalPercent { get; set; }
     }
