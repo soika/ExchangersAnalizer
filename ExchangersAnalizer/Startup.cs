@@ -16,6 +16,7 @@ namespace ExchangersAnalizer
     using System.Linq;
     using CronJobs.Tasks;
     using Data;
+    using Exchangers;
     using ExchangeSharp;
     using Extensions.Programs;
     using Microsoft.AspNetCore.Builder;
@@ -125,7 +126,8 @@ namespace ExchangersAnalizer
             services.AddSingleton(typeof(ExchangeKucoinAPI));
             services.AddSingleton(typeof(ExchangeCryptopiaAPI));
             services.AddSingleton(typeof(ExchangeYobitAPI));
-            services.AddSingleton(typeof(ExchangeOkexAPI));
+            services.AddSingleton(typeof(MinExchangeOkexAPI));
+            services.AddSingleton(typeof(ExchangeHuobiAPI));
         }
     }
 }

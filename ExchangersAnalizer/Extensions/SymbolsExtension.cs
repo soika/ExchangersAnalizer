@@ -132,6 +132,23 @@ namespace ExchangersAnalizer.Extensions
 
                     return globalSymbols;
                 }
+
+                case ExchangerEnum.Okex:
+                {
+                    foreach (var globalSymbol in globalSymbols)
+                    {
+                        foreach (var symbol in symbols)
+                        {
+                            if (SymbolHelper.ToGlobalSymbol(symbol, ExchangerEnum.Okex)
+                                .Equals(globalSymbol.GlobalSymbol))
+                            {
+                                globalSymbol.Okex = symbol;
+                            }
+                        }
+                    }
+
+                    return globalSymbols;
+                }
             }
         }
 
@@ -151,6 +168,15 @@ namespace ExchangersAnalizer.Extensions
                          || !string.IsNullOrEmpty(s.KuCoin))
                 .Where(s => s.GlobalSymbol.EndsWith(currency.ToString()))
                 .ToList();
+        }
+
+        public static string[] FilterByBaseCurency(
+            this string[] symbols,
+            BaseCurrencyEnum currency = BaseCurrencyEnum.BTC)
+        {
+            return symbols
+                .Where(s => s.ToUpper().EndsWith(currency.ToString()))
+                .ToArray();
         }
     }
 }

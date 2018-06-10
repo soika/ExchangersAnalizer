@@ -16,6 +16,7 @@ namespace ExchangersAnalizer.Services
     using System.Linq;
     using System.Threading.Tasks;
     using Enums;
+    using Exchangers;
     using ExchangeSharp;
     using Extensions;
     using Microsoft.Extensions.Caching.Memory;
@@ -33,9 +34,9 @@ namespace ExchangersAnalizer.Services
         private readonly ExchangeHitbtcAPI _hitbtcApi;
         private readonly ExchangeKucoinAPI _kucoinApi;
         private readonly IMemoryCache _memoryCache;
-        private readonly ExchangeYobitAPI _yobitApi;
-        private readonly ExchangeOkexAPI _okexApi;
+        private readonly MinExchangeOkexAPI _okexApi;
         private readonly IOptions<SiteSettings> _options;
+        private readonly ExchangeYobitAPI _yobitApi;
 
         public CoinInfoService(
             ExchangeBittrexAPI bittrexApi,
@@ -44,7 +45,7 @@ namespace ExchangersAnalizer.Services
             ExchangeKucoinAPI kucoinApi,
             ExchangeCryptopiaAPI cryptopiaApi,
             ExchangeYobitAPI yobitApi,
-            ExchangeOkexAPI okexApi,
+            MinExchangeOkexAPI okexApi,
             IMemoryCache memoryCache,
             IOptions<SiteSettings> options)
         {
@@ -74,6 +75,7 @@ namespace ExchangersAnalizer.Services
             var hitbtcMarket = (await _hitbtcApi.GetTickersAsync()).ToList();
             var kucoinMarket = (await _kucoinApi.GetTickersAsync()).ToList();
             var cryptopiaMarket = (await _cryptopiaApi.GetTickersAsync()).ToList();
+            var okexMarket = (await _okexApi.GetTickersAsync()).ToList();
 
             var symbols = await GetExchangeSymbols();
             coins = symbols.Select(
@@ -89,6 +91,7 @@ namespace ExchangersAnalizer.Services
             coins = coins.FillCoinPrices(ExchangerEnum.HitBtc, hitbtcMarket);
             coins = coins.FillCoinPrices(ExchangerEnum.KuCoin, kucoinMarket);
             coins = coins.FillCoinPrices(ExchangerEnum.Cryptopia, cryptopiaMarket);
+            coins = coins.FillCoinPrices(ExchangerEnum.Okex, okexMarket);
 
             coins = coins.ToAnalizedExchangePrice();
             coins = coins
@@ -108,6 +111,7 @@ namespace ExchangersAnalizer.Services
             var hitbtcMarket = (await _hitbtcApi.GetTickersAsync()).ToList();
             var kucoinMarket = (await _kucoinApi.GetTickersAsync()).ToList();
             var cryptopiaMarket = (await _cryptopiaApi.GetTickersAsync()).ToList();
+            var okexMarket = (await _okexApi.GetTickersAsync()).ToList();
             //var yobitMarket = (await _yobitApi.GetTickersAsync()).ToList();
 
             var symbols = await GetExchangeSymbols();
@@ -124,6 +128,7 @@ namespace ExchangersAnalizer.Services
             coins = coins.FillCoinPrices(ExchangerEnum.HitBtc, hitbtcMarket);
             coins = coins.FillCoinPrices(ExchangerEnum.KuCoin, kucoinMarket);
             coins = coins.FillCoinPrices(ExchangerEnum.Cryptopia, cryptopiaMarket);
+            coins = coins.FillCoinPrices(ExchangerEnum.Okex, okexMarket);
 
             coins = coins.ToAnalizedExchangePrice();
             coins = coins
@@ -147,7 +152,7 @@ namespace ExchangersAnalizer.Services
             var hitBtcSymbols = (await _hitbtcApi.GetSymbolsAsync()).ToArray();
             var kucoinSymbols = (await _kucoinApi.GetSymbolsAsync()).ToArray();
             var cryptopiaSymbols = (await _cryptopiaApi.GetSymbolsAsync()).ToArray();
-            //var okexSymbols = (await this._okexApi.GetSymbolsAsync()).ToArray();
+            var okexSymbols = (await _okexApi.GetSymbolsAsync()).ToArray();
             //var yobitSymbols = (await _yobitApi.GetSymbolsAsync()).ToArray();
 
             var globalSymbols = binanceSymbols.Select(
@@ -165,7 +170,9 @@ namespace ExchangersAnalizer.Services
             globalSymbols = globalSymbols.FillExchangerSymbols(ExchangerEnum.HitBtc, hitBtcSymbols);
             globalSymbols = globalSymbols.FillExchangerSymbols(ExchangerEnum.KuCoin, kucoinSymbols);
             globalSymbols = globalSymbols.FillExchangerSymbols(ExchangerEnum.Cryptopia, cryptopiaSymbols);
-            //globalSymbols = globalSymbols.FillExchangerSymbols(ExchangerEnum.Okex, okexSymbols);
+            globalSymbols = globalSymbols.FillExchangerSymbols(
+                ExchangerEnum.Okex,
+                okexSymbols.FilterByBaseCurency(currency));
             //globalSymbols = globalSymbols.FillExchangerSymbols(ExchangerEnum.Yobit, yobitSymbols);
 
             _memoryCache.Set(SymbolsKey, globalSymbols);

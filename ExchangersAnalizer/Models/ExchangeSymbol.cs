@@ -27,5 +27,7 @@ namespace ExchangersAnalizer.Models
         public string Cryptopia { get; set; }
 
         public string Yobit { get; set; }
+
+        public string Okex { get; set; }
     }
 }
