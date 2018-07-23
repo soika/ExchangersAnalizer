@@ -183,53 +183,6 @@ namespace ExchangersAnalizer.Exchangers
                 });
         }
 
-        protected override IDisposable OnGetOrderBookWebSocket(
-            Action<ExchangeSequencedWebsocketMessage<KeyValuePair<string, ExchangeOrderBook>>> callback,
-            int maxCount = 20,
-            params string[] symbols)
-        {
-            if (callback == null || symbols == null || symbols.Length == 0)
-            {
-                return null;
-            }
-
-            var normalizedSymbol = NormalizeSymbol(symbols[0]);
-            return ConnectWebSocket(
-                string.Empty,
-                (msg, _socket) =>
-                {
-                    try
-                    {
-                        var jtoken = JToken.Parse(msg.UTF8String())[0];
-                        var stringInvariant = jtoken["channel"].ToStringInvariant();
-                        if (stringInvariant.EqualsWithOption("addChannel", StringComparison.OrdinalIgnoreCase))
-                        {
-                            return;
-                        }
-
-                        var sArray = stringInvariant.Split('_', StringSplitOptions.None);
-                        var key = sArray[3] + "_" + sArray[4];
-                        var token = jtoken["data"];
-                        var sequenceNumber = token["timestamp"].ConvertInvariant(0L);
-                        var webSocket = ParseWebSocket(sArray, token) as ExchangeOrderBook;
-                        callback(
-                            new ExchangeSequencedWebsocketMessage<KeyValuePair<string, ExchangeOrderBook>>(
-                                sequenceNumber,
-                                new KeyValuePair<string, ExchangeOrderBook>(key, webSocket)));
-                    }
-                    catch
-                    {
-                    }
-                },
-                _socket =>
-                {
-                    var message = string.Format(
-                        "{{'event':'addChannel','channel':'{0}'}}",
-                        string.Format("ok_sub_spot_{0}_depth_{1}", normalizedSymbol, maxCount));
-                    _socket.SendMessage(message);
-                });
-        }
-
         protected override async Task<ExchangeOrderBook> OnGetOrderBookAsync(string symbol, int maxCount = 100)
         {
             var tuple = await MakeRequestOkexAsync(symbol, "/depth.do?symbol=$SYMBOL$", null);

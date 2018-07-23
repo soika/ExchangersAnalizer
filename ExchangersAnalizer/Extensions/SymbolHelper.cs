@@ -64,6 +64,24 @@ namespace ExchangersAnalizer.Extensions
                 {
                     return symbol.Replace("_", string.Empty).ToUpper();
                 }
+
+                case ExchangerEnum.Gate:
+                {
+                    // eth_btc => BTCETH
+                    var items = symbol.Split(new[] {'_'}, StringSplitOptions.RemoveEmptyEntries);
+                    return $"{items[0].ToUpper()}{items[1].ToUpper()}";
+                }
+
+                case ExchangerEnum.Huobi:
+                {
+                    return $"{symbol.Replace("btc", string.Empty).ToUpper()}BTC";
+                }
+
+                case ExchangerEnum.Upbit:
+                {
+                    var items = symbol.Split(new[] {'-'}, StringSplitOptions.RemoveEmptyEntries);
+                    return $"{items[1].ToUpper()}{items[0].ToUpper()}";
+                }
             }
         }
     }

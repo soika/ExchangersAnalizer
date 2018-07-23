@@ -25,6 +25,11 @@ namespace ExchangersAnalizer.Extensions
             ExchangerEnum exchanger,
             List<string> symbols)
         {
+            if (symbols == null || !symbols.Any())
+            {
+                return globalSymbols;
+            }
+
             switch (exchanger)
             {
                 default:
@@ -150,6 +155,57 @@ namespace ExchangersAnalizer.Extensions
 
                     return globalSymbols;
                 }
+
+                case ExchangerEnum.Huobi:
+                {
+                    foreach (var globalSymbol in globalSymbols)
+                    {
+                        foreach (var symbol in symbols)
+                        {
+                            if (SymbolHelper.ToGlobalSymbol(symbol, ExchangerEnum.Huobi)
+                                .Equals(globalSymbol.GlobalSymbol))
+                            {
+                                globalSymbol.Huobi = symbol;
+                            }
+                        }
+                    }
+
+                    return globalSymbols;
+                }
+
+                case ExchangerEnum.Gate:
+                {
+                    foreach (var globalSymbol in globalSymbols)
+                    {
+                        foreach (var symbol in symbols)
+                        {
+                            if (SymbolHelper.ToGlobalSymbol(symbol, ExchangerEnum.Gate)
+                                .Equals(globalSymbol.GlobalSymbol))
+                            {
+                                globalSymbol.Gate = symbol;
+                            }
+                        }
+                    }
+
+                    return globalSymbols;
+                }
+
+                case ExchangerEnum.Upbit:
+                {
+                    foreach (var globalSymbol in globalSymbols)
+                    {
+                        foreach (var symbol in symbols)
+                        {
+                            if (SymbolHelper.ToGlobalSymbol(symbol, ExchangerEnum.Upbit)
+                                .Equals(globalSymbol.GlobalSymbol))
+                            {
+                                globalSymbol.Upbit = symbol;
+                            }
+                        }
+                    }
+
+                    return globalSymbols;
+                }
             }
         }
 
@@ -182,6 +238,11 @@ namespace ExchangersAnalizer.Extensions
             IgnoreCoinSettings[] ignoreCoinSettings,
             ExchangerEnum exchanger)
         {
+            if (symbols == null || !symbols.Any())
+            {
+                return symbols;
+            }
+
             var ignoreSymbol = ignoreCoinSettings.FirstOrDefault(ss => ss.Exchanger.Equals(exchanger.ToString()));
             if (ignoreSymbol == null)
             {
