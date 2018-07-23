@@ -29,5 +29,11 @@ namespace ExchangersAnalizer.Models
         public string Yobit { get; set; }
 
         public string Okex { get; set; }
+
+        public string Gate { get; set; }
+
+        public string Huobi { get; set; }
+
+        public string Upbit { get; set; }
     }
 }

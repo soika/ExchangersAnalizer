@@ -28,6 +28,11 @@ namespace ExchangersAnalizer.Extensions
             ExchangerEnum exchanger,
             List<KeyValuePair<string, ExchangeTicker>> marketTickers)
         {
+            if (marketTickers == null || !marketTickers.Any())
+            {
+                return coins;
+            }
+
             foreach (var coin in coins)
             {
                 var ticker = marketTickers.FirstOrDefault(
@@ -37,6 +42,9 @@ namespace ExchangersAnalizer.Extensions
                          || t.Key.Equals(coin.ExchangeSymbol.KuCoin, StringComparison.OrdinalIgnoreCase)
                          || t.Key.Equals(coin.ExchangeSymbol.Cryptopia, StringComparison.OrdinalIgnoreCase)
                          || t.Key.Equals(coin.ExchangeSymbol.Okex, StringComparison.OrdinalIgnoreCase)
+                         || t.Key.Equals(coin.ExchangeSymbol.Gate, StringComparison.OrdinalIgnoreCase)
+                         || t.Key.Equals(coin.ExchangeSymbol.Huobi, StringComparison.OrdinalIgnoreCase)
+                         || t.Key.Equals(coin.ExchangeSymbol.Upbit, StringComparison.OrdinalIgnoreCase)
                          || t.Key.Equals(coin.ExchangeSymbol.Yobit, StringComparison.OrdinalIgnoreCase));
 
                 if (ticker.Key == null)
@@ -129,6 +137,42 @@ namespace ExchangersAnalizer.Extensions
 
                         break;
                     }
+
+                    case ExchangerEnum.Gate:
+                    {
+                        coin.ExchangePrices.Add(
+                            new ExchangePrice
+                            {
+                                Exchanger = ExchangerEnum.Gate,
+                                LastPrice = ticker.Value.Last
+                            });
+
+                        break;
+                    }
+
+                    case ExchangerEnum.Huobi:
+                    {
+                        coin.ExchangePrices.Add(
+                            new ExchangePrice
+                            {
+                                Exchanger = ExchangerEnum.Huobi,
+                                LastPrice = ticker.Value.Last
+                            });
+
+                        break;
+                    }
+
+                    case ExchangerEnum.Upbit:
+                    {
+                        coin.ExchangePrices.Add(
+                            new ExchangePrice
+                            {
+                                Exchanger = ExchangerEnum.Upbit,
+                                LastPrice = ticker.Value.Last
+                            });
+
+                        break;
+                    }
                 }
             }
 
@@ -138,8 +182,15 @@ namespace ExchangersAnalizer.Extensions
         public static List<CoinInfo> ToAnalizedExchangePrice(
             this List<CoinInfo> coins)
         {
+            coins.RemoveAll(x => x.ExchangePrices.All(p => p.LastPrice == 0));
             foreach (var coin in coins)
             {
+                var items = coin.ExchangePrices.Where(p => p.LastPrice > 0);
+                if (!items.Any())
+                {
+                   continue;
+                }
+
                 var lowestPrice = coin.ExchangePrices.Where(p => p.LastPrice > 0).Min(c => c.LastPrice);
 
                 var compareToExchanger = ExchangerEnum.Binance;

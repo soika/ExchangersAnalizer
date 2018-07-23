@@ -9,6 +9,9 @@
         Bittrex,
         KuCoin,
         Cryptopia,
-        Yobit
+        Yobit,
+        Gate,
+        Huobi,
+        Upbit
     }
 }

@@ -50,6 +50,8 @@ namespace ExchangersAnalizer
 
             ConfigExchangers(services);
 
+            ConfigCustomExchangers(services);
+
             ConfigCronJobs(services);
         }
 
@@ -68,7 +70,12 @@ namespace ExchangersAnalizer
 
         private static void ConfigureMvcServices(IServiceCollection services)
         {
-            services.AddMvc();
+            services.AddMvc().AddJsonOptions(options =>
+            {
+                options.SerializerSettings.Converters.Add(new Newtonsoft.Json.Converters.StringEnumConverter());
+                options.SerializerSettings.NullValueHandling = Newtonsoft.Json.NullValueHandling.Ignore;
+            });
+
             services.AddRouting(options => options.LowercaseUrls = true);
             services.AddMemoryCache();
         }
@@ -114,6 +121,8 @@ namespace ExchangersAnalizer
         {
             services.Configure<TelegramBotSettings>(Configuration.GetSection("TelegramBotSettings"));
             services.Configure<SiteSettings>(Configuration.GetSection("SiteSettings"));
+            services.Configure<ExchangerEnableSettings>(Configuration.GetSection("ExchangerEnableSettings"));
+
             services.AddTransient<ICoinInfoService, CoinInfoService>();
             services.AddTransient<ITelegramBotService, TelegramBotService>();
         }
@@ -128,6 +137,27 @@ namespace ExchangersAnalizer
             services.AddSingleton(typeof(ExchangeYobitAPI));
             services.AddSingleton(typeof(MinExchangeOkexAPI));
             services.AddSingleton(typeof(ExchangeHuobiAPI));
+        }
+
+        private static void ConfigCustomExchangers(IServiceCollection services)
+        {
+            services.AddHttpClient(
+                "Gate",
+                client => { client.BaseAddress = new Uri("https://data.gate.io/api2/1/"); });
+
+            services.AddTransient<MinExchangeGateAPI>();
+
+            services.AddHttpClient(
+                "Houbi",
+                client => { client.BaseAddress = new Uri("https://api.huobipro.com"); });
+
+            services.AddTransient<MinExchangeHoubiAPI>();
+
+            services.AddHttpClient(
+                "Upbit",
+                client => { client.BaseAddress = new Uri("https://api.upbit.com/v1/"); });
+
+            services.AddTransient<MinExchangeUpbitAPI>();
         }
     }
 }

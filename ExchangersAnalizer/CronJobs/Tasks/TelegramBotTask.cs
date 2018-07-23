@@ -12,12 +12,14 @@
 
 namespace ExchangersAnalizer.CronJobs.Tasks
 {
+    using System.Collections.Generic;
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
     using Enums;
     using Extensions;
     using Microsoft.Extensions.Options;
+    using Models;
     using Services;
     using Settings;
 
@@ -43,9 +45,21 @@ namespace ExchangersAnalizer.CronJobs.Tasks
         /// <inheritdoc />
         public async Task ExecuteAsync(CancellationToken cancellationToken)
         {
+            var messages = new List<GroupMessage>();
             var greaterPriceCoins = (await _coinInfoService.GetExchangerCoinInfoAsync()).ToList();
-            var msg1 = greaterPriceCoins.Take(_options.Value.NumberOfCoinsToSend).ToList().ToTelegramMessage();
-            await _telegramBotService.SendGroupMessagesAsync(msg1);
+            var selectedCoins = greaterPriceCoins.Take(_options.Value.NumberOfCoinsToSend).ToList();
+
+            var page = 1;
+            var size = 15;
+
+            while (selectedCoins.Count >= page * size)
+            {
+                messages.Add(selectedCoins.Skip((page - 1) * size).Take(size).ToList().ToTelegramMessage());
+                page = page + 1;
+            }
+
+            //var msg1 = greaterPriceCoins.Take(_options.Value.NumberOfCoinsToSend).ToList().ToTelegramMessage();
+            await _telegramBotService.SendGroupMessagesAsync(messages.ToArray());
         }
     }
 }

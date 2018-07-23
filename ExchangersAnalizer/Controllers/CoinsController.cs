@@ -14,25 +14,23 @@ namespace ExchangersAnalizer.Controllers
 {
     using System.Linq;
     using System.Threading.Tasks;
+    using Exchangers;
     using Extensions;
     using Microsoft.AspNetCore.Mvc;
-    using Microsoft.Extensions.Options;
-    using Models;
     using Services;
-    using Settings;
 
     [Route("api/[controller]")]
     public class CoinsController : Controller
     {
         private readonly ICoinInfoService _coinInfoService;
-        private readonly ITelegramBotService _telegramBotService;
+        private readonly MinExchangeUpbitAPI _exchangeGateApi;
 
         public CoinsController(
             ICoinInfoService coinInfoService,
-            ITelegramBotService telegramBotService)
+            MinExchangeUpbitAPI exchangeGateApi)
         {
             _coinInfoService = coinInfoService;
-            _telegramBotService = telegramBotService;
+            _exchangeGateApi = exchangeGateApi;
         }
 
         [HttpGet("")]
