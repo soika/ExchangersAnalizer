@@ -1,14 +1,14 @@
-﻿// -----------------------------------------------------------------------
-// <copyright file="CoinInfoService.cs" company="SóiKA Apps">
-//      All rights are reserved. Reproduction or transmission in whole or
-//      in part, in any form or by any means, electronic, mechanical or
-//      otherwise, is prohibited without the prior written consent of the 
-//      copyright owner.
-// </copyright>
-// <summary>
-//      Definition of the CoinInfoService.cs class.
-// </summary>
-// -----------------------------------------------------------------------
+﻿// // -----------------------------------------------------------------------
+// // <copyright file="CoinInfoService.cs" company="SóiKA Apps">
+// //      All rights are reserved. Reproduction or transmission in whole or
+// //      in part, in any form or by any means, electronic, mechanical or
+// //      otherwise, is prohibited without the prior written consent of the 
+// //      copyright owner.
+// // </copyright>
+// // <summary>
+// //      Definition of the CoinInfoService.cs class.
+// // </summary>
+// // -----------------------------------------------------------------------
 
 namespace ExchangersAnalizer.Services
 {
@@ -74,30 +74,29 @@ namespace ExchangersAnalizer.Services
         public async Task<IEnumerable<CoinInfo>> GetExchangerCoinInfoAsync(
             BaseCurrencyEnum currency = BaseCurrencyEnum.BTC)
         {
-            var coins = memoryCache.Get<List<CoinInfo>>(CoinInfoKey);
+            var coins = this.memoryCache.Get<List<CoinInfo>>(CoinInfoKey);
             if (coins != null)
             {
                 return coins;
             }
 
-            var binanceMarket = enableOptions.Value.Binance ? (await binanceApi.GetTickersAsync()).ToList() : null;
-            var bittrexMarket = enableOptions.Value.Bittrex ? (await bittrexApi.GetTickersAsync()).ToList() : null;
-            var kucoinMarket = enableOptions.Value.KuCoin ? (await kucoinApi.GetTickersAsync()).ToList() : null;
-            var cryptopiaMarket =
-                enableOptions.Value.Cryptopia ? (await cryptopiaApi.GetTickersAsync()).ToList() : null;
-            var okexMarket = enableOptions.Value.Okex ? (await okexApi.GetTickersAsync()).ToList() : null;
-            var gateMarket = enableOptions.Value.Gate ? (await gateApi.GetTickersAsync()).ToList() : null;
-            var huobiMarket = enableOptions.Value.Huobi ? (await huobiApi.GetTickersAsync()).ToList() : null;
+            var binanceMarket = this.enableOptions.Value.Binance ? (await this.binanceApi.GetTickersAsync()).ToList() : null;
+            var bittrexMarket = this.enableOptions.Value.Bittrex ? (await this.bittrexApi.GetTickersAsync()).ToList() : null;
+            var kucoinMarket = this.enableOptions.Value.KuCoin ? (await this.kucoinApi.GetTickersAsync()).ToList() : null;
+            var cryptopiaMarket = this.enableOptions.Value.Cryptopia ? (await this.cryptopiaApi.GetTickersAsync()).ToList() : null;
+            var okexMarket = this.enableOptions.Value.Okex ? (await this.okexApi.GetTickersAsync()).ToList() : null;
+            var gateMarket = this.enableOptions.Value.Gate ? (await this.gateApi.GetTickersAsync()).ToList() : null;
+            var huobiMarket = this.enableOptions.Value.Huobi ? (await this.huobiApi.GetTickersAsync()).ToList() : null;
 
             var symbols = await GetExchangeSymbols();
 
             coins = symbols.Select(
-                x => new CoinInfo
-                {
-                    ExchangeSymbol = x,
-                    Currency = BaseCurrencyEnum.BTC,
-                    ExchangePrices = new List<ExchangePrice>()
-                }).ToList();
+                                   x => new CoinInfo
+                                   {
+                                       ExchangeSymbol = x,
+                                       Currency = BaseCurrencyEnum.BTC,
+                                       ExchangePrices = new List<ExchangePrice>()
+                                   }).ToList();
 
             coins = coins.FillCoinPrices(ExchangerEnum.Binance, binanceMarket);
             coins = coins.FillCoinPrices(ExchangerEnum.Bittrex, bittrexMarket);
@@ -109,10 +108,10 @@ namespace ExchangersAnalizer.Services
 
             coins = coins.ToAnalizedExchangePrice();
             coins = coins
-                .OrderByDescending(opt => opt.ExchangePrices.Max(price => price.Percent))
-                .ToList();
+                   .OrderByDescending(opt => opt.ExchangePrices.Max(price => price.Percent))
+                   .ToList();
 
-            memoryCache.Set(CoinInfoKey, coins);
+            this.memoryCache.Set(CoinInfoKey, coins);
             return coins;
         }
 
@@ -120,23 +119,22 @@ namespace ExchangersAnalizer.Services
         public async Task<IEnumerable<CoinInfo>> ForceUpdateCoinInfoAsync(
             BaseCurrencyEnum currency = BaseCurrencyEnum.BTC)
         {
-            var binanceMarket = enableOptions.Value.Binance ? (await binanceApi.GetTickersAsync()).ToList() : null;
-            var bittrexMarket = enableOptions.Value.Bittrex ? (await bittrexApi.GetTickersAsync()).ToList() : null;
-            var kucoinMarket = enableOptions.Value.KuCoin ? (await kucoinApi.GetTickersAsync()).ToList() : null;
-            var cryptopiaMarket =
-                enableOptions.Value.Cryptopia ? (await cryptopiaApi.GetTickersAsync()).ToList() : null;
-            var okexMarket = enableOptions.Value.Okex ? (await okexApi.GetTickersAsync()).ToList() : null;
-            var gateMarket = enableOptions.Value.Gate ? (await gateApi.GetTickersAsync()).ToList() : null;
-            var huobiMarket = enableOptions.Value.Huobi ? (await huobiApi.GetTickersAsync()).ToList() : null;
+            var binanceMarket = this.enableOptions.Value.Binance ? (await this.binanceApi.GetTickersAsync()).ToList() : null;
+            var bittrexMarket = this.enableOptions.Value.Bittrex ? (await this.bittrexApi.GetTickersAsync()).ToList() : null;
+            var kucoinMarket = this.enableOptions.Value.KuCoin ? (await this.kucoinApi.GetTickersAsync()).ToList() : null;
+            var cryptopiaMarket = this.enableOptions.Value.Cryptopia ? (await this.cryptopiaApi.GetTickersAsync()).ToList() : null;
+            var okexMarket = this.enableOptions.Value.Okex ? (await this.okexApi.GetTickersAsync()).ToList() : null;
+            var gateMarket = this.enableOptions.Value.Gate ? (await this.gateApi.GetTickersAsync()).ToList() : null;
+            var huobiMarket = this.enableOptions.Value.Huobi ? (await this.huobiApi.GetTickersAsync()).ToList() : null;
 
             var symbols = await GetExchangeSymbols();
             var coins = symbols.Select(
-                x => new CoinInfo
-                {
-                    ExchangeSymbol = x,
-                    Currency = BaseCurrencyEnum.BTC,
-                    ExchangePrices = new List<ExchangePrice>()
-                }).ToList();
+                                       x => new CoinInfo
+                                       {
+                                           ExchangeSymbol = x,
+                                           Currency = BaseCurrencyEnum.BTC,
+                                           ExchangePrices = new List<ExchangePrice>()
+                                       }).ToList();
 
             coins = coins.FillCoinPrices(ExchangerEnum.Binance, binanceMarket);
             coins = coins.FillCoinPrices(ExchangerEnum.Bittrex, bittrexMarket);
@@ -148,49 +146,49 @@ namespace ExchangersAnalizer.Services
 
             coins = coins.ToAnalizedExchangePrice();
             coins = coins
-                .OrderByDescending(opt => opt.ExchangePrices.Max(price => price.Percent))
-                .ToList();
+                   .OrderByDescending(opt => opt.ExchangePrices.Max(price => price.Percent))
+                   .ToList();
 
-            memoryCache.Set(CoinInfoKey, coins);
+            this.memoryCache.Set(CoinInfoKey, coins);
             return coins;
         }
 
         public async Task<List<ExchangeSymbol>> GetExchangeSymbols(BaseCurrencyEnum currency = BaseCurrencyEnum.BTC)
         {
-            var ignoreCoinSettings = options.Value.IgnoreCoinSettings;
-            var cachedSymbols = memoryCache.Get<List<ExchangeSymbol>>(SymbolsKey);
+            var ignoreCoinSettings = this.options.Value.IgnoreCoinSettings;
+            var cachedSymbols = this.memoryCache.Get<List<ExchangeSymbol>>(SymbolsKey);
             if (cachedSymbols != null)
             {
                 return cachedSymbols;
             }
 
-            var binanceSymbols = (await binanceApi.GetSymbolsAsync()).ToList().FilterByBaseCurency(currency);
+            var binanceSymbols = (await this.binanceApi.GetSymbolsAsync()).ToList().FilterByBaseCurency(currency);
 
-            var bittrexSymbols = enableOptions.Value.Binance
-                ? (await bittrexApi.GetSymbolsAsync()).ToList().FilterByBaseCurency(currency)
+            var bittrexSymbols = this.enableOptions.Value.Binance
+                ? (await this.bittrexApi.GetSymbolsAsync()).ToList().FilterByBaseCurency(ExchangerEnum.Bittrex, currency)
                 : null;
-            var kucoinSymbols = enableOptions.Value.Binance
-                ? (await kucoinApi.GetSymbolsAsync()).ToList().FilterByBaseCurency(currency)
+            var kucoinSymbols = this.enableOptions.Value.Binance
+                ? (await this.kucoinApi.GetSymbolsAsync()).ToList().FilterByBaseCurency(currency)
                 : null;
-            var cryptopiaSymbols = enableOptions.Value.Binance
-                ? (await cryptopiaApi.GetSymbolsAsync()).ToList().FilterByBaseCurency(currency)
+            var cryptopiaSymbols = this.enableOptions.Value.Binance
+                ? (await this.cryptopiaApi.GetSymbolsAsync()).ToList().FilterByBaseCurency(currency)
                 : null;
-            var okexSymbols = enableOptions.Value.Binance
-                ? (await okexApi.GetSymbolsAsync()).ToList().FilterByBaseCurency(currency)
+            var okexSymbols = this.enableOptions.Value.Binance
+                ? (await this.okexApi.GetSymbolsAsync()).ToList().FilterByBaseCurency(currency)
                 : null;
-            var gateSymbols = enableOptions.Value.Binance
-                ? (await gateApi.GetSymbolsAsync()).ToList()
+            var gateSymbols = this.enableOptions.Value.Binance
+                ? (await this.gateApi.GetSymbolsAsync()).ToList()
                 : null;
-            var huobiSymbols = enableOptions.Value.Binance
-                ? (await huobiApi.GetSymbolsAsync()).ToList()
+            var huobiSymbols = this.enableOptions.Value.Binance
+                ? (await this.huobiApi.GetSymbolsAsync()).ToList()
                 : null;
 
             var globalSymbols = binanceSymbols.Select(
-                x =>
-                    new ExchangeSymbol
-                    {
-                        GlobalSymbol = SymbolHelper.ToGlobalSymbol(x, ExchangerEnum.Binance)
-                    }).ToList();
+                                                      x =>
+                                                          new ExchangeSymbol
+                                                          {
+                                                              GlobalSymbol = SymbolHelper.ToGlobalSymbol(x, ExchangerEnum.Binance)
+                                                          }).ToList();
 
             if (ignoreCoinSettings != null)
             {
@@ -211,7 +209,7 @@ namespace ExchangersAnalizer.Services
             globalSymbols = globalSymbols.FillExchangerSymbols(ExchangerEnum.Gate, gateSymbols);
             globalSymbols = globalSymbols.FillExchangerSymbols(ExchangerEnum.Huobi, huobiSymbols);
 
-            memoryCache.Set(SymbolsKey, globalSymbols);
+            this.memoryCache.Set(SymbolsKey, globalSymbols);
             return globalSymbols;
         }
     }

@@ -233,6 +233,14 @@ namespace ExchangersAnalizer.Extensions
             return symbols.Where(s => s.ToUpper().EndsWith(currency.ToString())).ToList();
         }
 
+        public static List<string> FilterByBaseCurency(
+            this List<string> symbols,
+            ExchangerEnum exchanger = ExchangerEnum.Bittrex,
+            BaseCurrencyEnum currency = BaseCurrencyEnum.BTC)
+        {
+            return symbols.Where(s => s.ToUpper().StartsWith(currency.ToString())).ToList();
+        }
+
         public static List<string> FilterByIgnoreCoins(
             this List<string> symbols,
             IgnoreCoinSettings[] ignoreCoinSettings,
